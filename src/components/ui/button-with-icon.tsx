@@ -7,7 +7,7 @@ import { LucideIcon } from "lucide-react";
 interface ButtonWithIconProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: LucideIcon;
   iconPosition?: 'left' | 'right';
-  variant?: 'default' | 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'primary';
   children: React.ReactNode;
 }
 
@@ -20,20 +20,22 @@ const ButtonWithIcon = ({
   ...props
 }: ButtonWithIconProps) => {
   
-  const variantClasses = {
-    primary: 'bg-marketash-blue hover:bg-marketash-blue/90 text-white',
-    secondary: 'bg-marketash-green hover:bg-marketash-green/90 text-white',
-    outline: 'border-2 border-marketash-blue text-marketash-blue hover:bg-marketash-blue/10',
-    ghost: 'hover:bg-gray-100 text-gray-800',
-    default: ''
-  };
+  // Map our custom variants to shadcn/ui button variants
+  let mappedVariant: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' = 'default';
+  
+  if (variant === 'primary') {
+    // Map primary to default but with custom styling
+    mappedVariant = 'default';
+    className = cn("bg-marketash-blue hover:bg-marketash-blue/90 text-white", className);
+  } else if (variant === 'secondary' || variant === 'outline' || variant === 'ghost' || variant === 'link' || variant === 'destructive') {
+    // Pass through other valid shadcn/ui variants
+    mappedVariant = variant;
+  }
   
   return (
     <Button 
-      className={cn(variant !== 'default' && variantClasses[variant], 
-        "flex items-center gap-2 font-medium", 
-        className
-      )} 
+      variant={mappedVariant}
+      className={cn("flex items-center gap-2 font-medium", className)} 
       {...props}
     >
       {Icon && iconPosition === 'left' && <Icon className="w-5 h-5" />}
