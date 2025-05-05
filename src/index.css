@@ -1,3 +1,6 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,11 +16,11 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 210 100% 31%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 120 39% 49%;
+    --secondary-foreground: 120 40% 15%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
@@ -96,6 +99,28 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-marketash-blue hover:bg-marketash-blue/90 text-white font-medium rounded-md px-6 py-3 transition-all;
+  }
+  
+  .btn-secondary {
+    @apply bg-marketash-green hover:bg-marketash-green/90 text-white font-medium rounded-md px-6 py-3 transition-all;
+  }
+
+  .btn-outline {
+    @apply border-2 border-marketash-blue text-marketash-blue hover:bg-marketash-blue/10 font-medium rounded-md px-6 py-3 transition-all;
+  }
+
+  .card-hover {
+    @apply transition-all hover:shadow-md hover:-translate-y-1;
   }
 }
