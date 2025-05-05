@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 const products = [
   {
     id: '1',
-    image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?q=80&w=800&auto=format&fit=crop',
+    image: '/public/lovable-uploads/55587f5d-7386-498b-a425-ec93225e0e71.png', // Organic Tomatoes
     title: 'Organic Tomatoes',
     description: 'Fresh, pesticide-free tomatoes grown using organic farming methods. Perfect for salads and cooking.',
     basePrice: 2.50,
@@ -26,7 +26,7 @@ const products = [
   },
   {
     id: '2',
-    image: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?q=80&w=800&auto=format&fit=crop',
+    image: '/public/lovable-uploads/0076b5bb-3acc-465e-8d3a-1b27fbd365da.png', // Premium Cassava
     title: 'Premium Cassava',
     description: 'High-yield cassava variety with excellent starch content. Ideal for flour and industrial processing.',
     basePrice: 1.20,
@@ -42,7 +42,7 @@ const products = [
   },
   {
     id: '3',
-    image: 'https://images.unsplash.com/photo-1501286353178-1ec881214838?q=80&w=800&auto=format&fit=crop',
+    image: '/public/lovable-uploads/a85c7d3f-47a9-42f4-975f-7e3d3f9540d9.png', // Red Onions
     title: 'Red Onions',
     description: 'Sweet red onions grown in volcanic soil. Perfect for salads and cooking with extended shelf life.',
     basePrice: 1.80,
@@ -58,7 +58,7 @@ const products = [
   },
   {
     id: '4',
-    image: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?q=80&w=800&auto=format&fit=crop',
+    image: '/public/lovable-uploads/f0275f1c-dbc0-40d6-94cc-d67a5af5cbdb.png', // Green Peppers
     title: 'Green Peppers',
     description: 'Fresh, crispy green peppers with excellent flavor. Great for salads, stir-fries, and stuffed peppers.',
     basePrice: 3.00,
@@ -74,7 +74,7 @@ const products = [
   },
   {
     id: '5',
-    image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?q=80&w=800&auto=format&fit=crop',
+    image: '/public/lovable-uploads/d4202ea3-1fcb-40ba-b1d9-1ae138496655.png', // Sweet Corn
     title: 'Sweet Corn',
     description: 'Non-GMO sweet corn with excellent sugar content. Perfect for grilling, boiling, or adding to salads.',
     basePrice: 1.50,
@@ -90,7 +90,7 @@ const products = [
   },
   {
     id: '6',
-    image: 'https://images.unsplash.com/photo-1501286353178-1ec881214838?q=80&w=800&auto=format&fit=crop',
+    image: '/public/lovable-uploads/bc94cc4f-3991-4a72-bdf2-8c9e5dfeea6a.png', // Green Bananas
     title: 'Green Bananas',
     description: 'Organic green bananas, perfect for cooking traditional African dishes or for ripening at home.',
     basePrice: 1.20,
