@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -103,6 +102,70 @@ const products = [
       image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=150&auto=format&fit=crop',
       rating: 4
     }
+  },
+  {
+    id: '7',
+    image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?q=80&w=800&auto=format&fit=crop', // Avocado
+    title: 'Organic Avocados',
+    description: 'Creamy, nutrient-rich avocados grown in the highlands. Perfect for salads, smoothies, and spreads.',
+    basePrice: 3.80,
+    unit: 'kg',
+    quantity: 600,
+    location: 'Meru, Kenya',
+    harvestDate: '1 day ago',
+    farmer: {
+      name: 'Elizabeth Njeri',
+      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&auto=format&fit=crop',
+      rating: 5
+    }
+  },
+  {
+    id: '8',
+    image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?q=80&w=800&auto=format&fit=crop', // Macadamia
+    title: 'Macadamia Nuts',
+    description: 'Premium grade macadamia nuts with high oil content. Perfect for snacking and gourmet food production.',
+    basePrice: 12.50,
+    unit: 'kg',
+    quantity: 300,
+    location: 'Embu, Kenya',
+    harvestDate: '1 week ago',
+    farmer: {
+      name: 'Thomas Mutua',
+      image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=150&auto=format&fit=crop',
+      rating: 4
+    }
+  },
+  {
+    id: '9',
+    image: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=800&auto=format&fit=crop', // Miraa (Khat)
+    title: 'Fresh Miraa (Khat)',
+    description: 'High-quality miraa leaves, carefully harvested and packaged for maximum freshness and potency.',
+    basePrice: 8.00,
+    unit: 'bundle',
+    quantity: 450,
+    location: 'Meru, Kenya',
+    harvestDate: 'Today',
+    farmer: {
+      name: 'Hassan Omar',
+      image: 'https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?q=80&w=150&auto=format&fit=crop',
+      rating: 5
+    }
+  },
+  {
+    id: '10',
+    image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?q=80&w=800&auto=format&fit=crop', // Coffee
+    title: 'Premium Coffee Beans',
+    description: 'Specialty grade Arabica coffee beans grown at high altitude. Rich flavor profile with notes of chocolate and citrus.',
+    basePrice: 15.20,
+    unit: 'kg',
+    quantity: 800,
+    location: 'Nyeri, Kenya',
+    harvestDate: '3 days ago',
+    farmer: {
+      name: 'James Maina',
+      image: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
+      rating: 5
+    }
   }
 ];
 
@@ -112,6 +175,9 @@ const categories = [
   { name: 'Grains', count: 53 },
   { name: 'Tubers', count: 42 },
   { name: 'Herbs', count: 21 },
+  { name: 'Nuts', count: 18 }, 
+  { name: 'Stimulants', count: 12 }, 
+  { name: 'Beverages', count: 24 },
 ];
 
 const locations = [
