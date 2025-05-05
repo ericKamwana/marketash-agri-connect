@@ -272,7 +272,7 @@ const Marketplace = () => {
                     <Button variant="outline" className="flex-1 text-sm">
                       Reset
                     </Button>
-                    <Button variant="primary" className="flex-1 text-sm">
+                    <Button className="flex-1 text-sm bg-marketash-blue hover:bg-marketash-blue/90 text-white">
                       Apply Filters
                     </Button>
                   </div>

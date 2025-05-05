@@ -141,7 +141,9 @@ const Dashboard = () => {
                     </div>
                   </div>
                   <div className="ml-6">
-                    <Button variant="primary">
+                    <Button 
+                      className="bg-marketash-blue hover:bg-marketash-blue/90 text-white"
+                    >
                       Apply for Microloan
                     </Button>
                   </div>
@@ -155,7 +157,9 @@ const Dashboard = () => {
                     <p className="text-xl font-bold text-marketash-blue">8</p>
                   </div>
                   <div className="ml-6">
-                    <Button variant="primary">
+                    <Button 
+                      className="bg-marketash-blue hover:bg-marketash-blue/90 text-white"
+                    >
                       Browse Marketplace
                     </Button>
                   </div>
