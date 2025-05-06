@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Calendar, MapPin, ArrowUp, ArrowDown, Truck } from 'lucide-react';
 import ButtonWithIcon from '@/components/ui/button-with-icon';
 import { useToast } from "@/components/ui/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProductCardProps {
   id: string;
@@ -19,6 +20,7 @@ interface ProductCardProps {
     image: string;
     rating: number;
   };
+  isLoading?: boolean;
 }
 
 const ProductCard = ({
@@ -31,7 +33,8 @@ const ProductCard = ({
   quantity,
   location,
   harvestDate,
-  farmer
+  farmer,
+  isLoading = false
 }: ProductCardProps) => {
   const { toast } = useToast();
   const [bidAmount, setBidAmount] = useState(basePrice);
@@ -59,6 +62,46 @@ const ProductCard = ({
   // Fix image path if it starts with '/public'
   const imageSrc = image.startsWith('/public') ? image.substring(7) : image;
   
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm h-[600px]">
+        <div className="relative h-48">
+          <Skeleton className="w-full h-full" />
+        </div>
+        <div className="p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-6 w-2/3" />
+            <Skeleton className="h-6 w-1/4" />
+          </div>
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+          <div className="flex items-center">
+            <Skeleton className="h-4 w-1/3 mr-2" />
+          </div>
+          <div className="flex items-center">
+            <Skeleton className="h-4 w-1/2 mr-2" />
+          </div>
+          <div className="border-t border-gray-100 pt-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Skeleton className="h-8 w-8 rounded-full mr-2" />
+                <div>
+                  <Skeleton className="h-4 w-20 mb-1" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+              </div>
+              <Skeleton className="h-6 w-24 rounded-full" />
+            </div>
+          </div>
+          <div className="flex justify-between gap-2 pt-4">
+            <Skeleton className="h-10 w-1/2" />
+            <Skeleton className="h-10 w-1/2" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow card-hover">
       <div className="relative h-48">
@@ -81,12 +124,12 @@ const ProductCard = ({
         <p className="text-gray-600 mb-4 line-clamp-2">{description}</p>
         
         <div className="flex items-center text-sm text-gray-500 mb-2">
-          <MapPin className="h-4 w-4 mr-1" />
+          <MapPin className="h-4 w-4 mr-1" aria-hidden="true" />
           <span>{location}</span>
         </div>
         
         <div className="flex items-center text-sm text-gray-500 mb-4">
-          <Calendar className="h-4 w-4 mr-1" />
+          <Calendar className="h-4 w-4 mr-1" aria-hidden="true" />
           <span>Harvested: {harvestDate}</span>
         </div>
         
@@ -109,7 +152,7 @@ const ProductCard = ({
             </div>
           </div>
           <div className="flex items-center text-xs bg-marketash-lightBlue text-marketash-blue px-2 py-1 rounded-full">
-            <Truck className="h-3 w-3 mr-1" />
+            <Truck className="h-3 w-3 mr-1" aria-hidden="true" />
             <span>Delivery available</span>
           </div>
         </div>
@@ -120,6 +163,7 @@ const ProductCard = ({
               variant="outline" 
               className="flex-1"
               onClick={() => setShowBidForm(true)}
+              aria-label="Place bid on this product"
             >
               Place Bid
             </ButtonWithIcon>
@@ -132,6 +176,7 @@ const ProductCard = ({
                   description: "This feature is under development.",
                 });
               }}
+              aria-label="Contact the farmer about this product"
             >
               Contact Farmer
             </ButtonWithIcon>
@@ -151,12 +196,14 @@ const ProductCard = ({
                   }
                 }}
                 className="flex-1 px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-marketash-blue"
+                aria-label={`Bid amount in dollars per ${unit}`}
               />
               <div className="flex flex-col border border-l-0 border-gray-300 rounded-r-md overflow-hidden">
                 <button
                   type="button"
                   onClick={increaseBid}
                   className="px-2 py-1 bg-gray-100 hover:bg-gray-200 border-b border-gray-300"
+                  aria-label="Increase bid amount"
                 >
                   <ArrowUp className="h-3 w-3" />
                 </button>
@@ -164,6 +211,7 @@ const ProductCard = ({
                   type="button"
                   onClick={decreaseBid}
                   className="px-2 py-1 bg-gray-100 hover:bg-gray-200"
+                  aria-label="Decrease bid amount"
                 >
                   <ArrowDown className="h-3 w-3" />
                 </button>
@@ -174,12 +222,14 @@ const ProductCard = ({
                 type="button"
                 onClick={() => setShowBidForm(false)}
                 className="flex-1 bg-gray-100 text-gray-700 font-medium rounded-md px-4 py-2 hover:bg-gray-200"
+                aria-label="Cancel bidding"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 className="flex-1 bg-marketash-blue text-white font-medium rounded-md px-4 py-2 hover:bg-marketash-blue/90"
+                aria-label="Submit your bid"
               >
                 Submit Bid
               </button>

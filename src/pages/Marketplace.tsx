@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import ProductCard from '@/components/marketplace/ProductCard';
@@ -192,6 +192,32 @@ const locations = [
 const Marketplace = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [displayProducts, setDisplayProducts] = useState(products);
+  
+  // Simulate loading data from an API
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Filter products based on search query
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setDisplayProducts(products);
+    } else {
+      const filtered = products.filter(product => 
+        product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.farmer.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setDisplayProducts(filtered);
+    }
+  }, [searchQuery]);
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -212,7 +238,7 @@ const Marketplace = () => {
                 {/* Search Bar */}
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5 text-gray-400" />
+                    <Search className="h-5 w-5 text-gray-400" aria-hidden="true" />
                   </div>
                   <input
                     type="text"
@@ -220,6 +246,7 @@ const Marketplace = () => {
                     className="w-full pl-10 pr-4 py-3 rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-marketash-green"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    aria-label="Search marketplace"
                   />
                 </div>
               </div>
@@ -240,23 +267,34 @@ const Marketplace = () => {
                 variant="outline" 
                 className="flex items-center space-x-2"
                 onClick={() => setShowFilters(!showFilters)}
+                aria-expanded={showFilters}
+                aria-controls="filters-panel"
               >
-                <Filter className="h-4 w-4" />
+                <Filter className="h-4 w-4" aria-hidden="true" />
                 <span>Filters</span>
               </Button>
-              <Button variant="outline" className="flex items-center space-x-2">
-                <Map className="h-4 w-4" />
+              <Button 
+                variant="outline" 
+                className="flex items-center space-x-2"
+                aria-label="View marketplace map"
+              >
+                <Map className="h-4 w-4" aria-hidden="true" />
                 <span>Map View</span>
               </Button>
             </div>
             
             <div className="flex items-center space-x-4">
               <div className="flex items-center text-sm text-gray-600">
-                <Clock className="h-4 w-4 mr-1" />
+                <Clock className="h-4 w-4 mr-1" aria-hidden="true" />
                 <span>Recently Added</span>
               </div>
-              <Button variant="ghost" size="sm" className="flex items-center space-x-1">
-                <ArrowUpDown className="h-4 w-4" />
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="flex items-center space-x-1"
+                aria-label="Sort products"
+              >
+                <ArrowUpDown className="h-4 w-4" aria-hidden="true" />
                 <span>Sort</span>
               </Button>
             </div>
@@ -265,7 +303,10 @@ const Marketplace = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Filters Sidebar */}
             {showFilters && (
-              <div className="col-span-1 bg-white p-5 rounded-lg shadow-sm">
+              <div 
+                id="filters-panel" 
+                className="col-span-1 bg-white p-5 rounded-lg shadow-sm"
+              >
                 <h3 className="font-semibold text-lg mb-4">Filter Products</h3>
                 
                 <div className="space-y-5">
@@ -336,10 +377,17 @@ const Marketplace = () => {
                   
                   {/* Apply/Reset Buttons */}
                   <div className="pt-2 flex space-x-3">
-                    <Button variant="outline" className="flex-1 text-sm">
+                    <Button 
+                      variant="outline" 
+                      className="flex-1 text-sm"
+                      aria-label="Reset all filters"
+                    >
                       Reset
                     </Button>
-                    <Button className="flex-1 text-sm bg-marketash-blue hover:bg-marketash-blue/90 text-white">
+                    <Button 
+                      className="flex-1 text-sm bg-marketash-blue hover:bg-marketash-blue/90 text-white"
+                      aria-label="Apply selected filters"
+                    >
                       Apply Filters
                     </Button>
                   </div>
@@ -348,10 +396,49 @@ const Marketplace = () => {
             )}
             
             {/* Product Grid */}
-            <div className={`${showFilters ? 'col-span-1 lg:col-span-3' : 'col-span-1 lg:col-span-4'} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6`}>
-              {products.map(product => (
-                <ProductCard key={product.id} {...product} />
-              ))}
+            <div 
+              className={`${showFilters ? 'col-span-1 lg:col-span-3' : 'col-span-1 lg:col-span-4'} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6`}
+              aria-live="polite"
+              aria-busy={isLoading}
+            >
+              {isLoading ? (
+                // Show skeleton loaders while loading
+                [...Array(6)].map((_, index) => (
+                  <ProductCard
+                    key={`skeleton-${index}`}
+                    id={`skeleton-${index}`}
+                    isLoading={true}
+                    image=""
+                    title=""
+                    description=""
+                    basePrice={0}
+                    unit=""
+                    quantity={0}
+                    location=""
+                    harvestDate=""
+                    farmer={{name: "", image: "", rating: 0}}
+                  />
+                ))
+              ) : (
+                // Show actual products when loaded
+                displayProducts.map(product => (
+                  <ProductCard key={product.id} {...product} isLoading={false} />
+                ))
+              )}
+              
+              {/* Show message when no products match search */}
+              {!isLoading && displayProducts.length === 0 && (
+                <div className="col-span-full text-center py-10">
+                  <p className="text-gray-500 text-lg">No products found matching your search.</p>
+                  <Button 
+                    onClick={() => setSearchQuery('')}
+                    className="mt-4 bg-marketash-blue hover:bg-marketash-blue/90 text-white"
+                    aria-label="Clear search and show all products"
+                  >
+                    Clear Search
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
