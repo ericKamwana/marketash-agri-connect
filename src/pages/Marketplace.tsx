@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -9,7 +10,7 @@ import { Button } from "@/components/ui/button";
 const products = [
   {
     id: '1',
-    image: '/public/lovable-uploads/55587f5d-7386-498b-a425-ec93225e0e71.png', // Organic Tomatoes
+    image: '/public/lovable-uploads/8c84fdc3-7333-4cca-8c21-a1c14689e8e5.png', // Organic Tomatoes
     title: 'Organic Tomatoes',
     description: 'Fresh, pesticide-free tomatoes grown using organic farming methods. Perfect for salads and cooking.',
     basePrice: 2.50,
@@ -25,7 +26,7 @@ const products = [
   },
   {
     id: '2',
-    image: '/public/lovable-uploads/0076b5bb-3acc-465e-8d3a-1b27fbd365da.png', // Premium Cassava
+    image: '/public/lovable-uploads/ba229909-bc77-4575-b1d1-273245dd7769.png', // Premium Cassava
     title: 'Premium Cassava',
     description: 'High-yield cassava variety with excellent starch content. Ideal for flour and industrial processing.',
     basePrice: 1.20,
@@ -41,7 +42,7 @@ const products = [
   },
   {
     id: '3',
-    image: '/public/lovable-uploads/a85c7d3f-47a9-42f4-975f-7e3d3f9540d9.png', // Red Onions
+    image: '/public/lovable-uploads/6be60b20-7ca8-4e86-a444-9eef79152848.png', // Red Onions
     title: 'Red Onions',
     description: 'Sweet red onions grown in volcanic soil. Perfect for salads and cooking with extended shelf life.',
     basePrice: 1.80,
@@ -57,7 +58,7 @@ const products = [
   },
   {
     id: '4',
-    image: '/public/lovable-uploads/f0275f1c-dbc0-40d6-94cc-d67a5af5cbdb.png', // Green Peppers
+    image: '/public/lovable-uploads/e684f887-1849-4787-8da2-6f47b9ff81c1.png', // Green Peppers
     title: 'Green Peppers',
     description: 'Fresh, crispy green peppers with excellent flavor. Great for salads, stir-fries, and stuffed peppers.',
     basePrice: 3.00,
@@ -73,7 +74,7 @@ const products = [
   },
   {
     id: '5',
-    image: '/public/lovable-uploads/d4202ea3-1fcb-40ba-b1d9-1ae138496655.png', // Sweet Corn
+    image: '/public/lovable-uploads/6e635c75-6b2f-4f00-97b1-1b72a2a6d8ca.png', // Sweet Corn
     title: 'Sweet Corn',
     description: 'Non-GMO sweet corn with excellent sugar content. Perfect for grilling, boiling, or adding to salads.',
     basePrice: 1.50,
@@ -89,7 +90,7 @@ const products = [
   },
   {
     id: '6',
-    image: '/public/lovable-uploads/bc94cc4f-3991-4a72-bdf2-8c9e5dfeea6a.png', // Green Bananas
+    image: '/public/lovable-uploads/4f9557f6-fe5d-468c-9617-3795c3273de8.png', // Green Bananas
     title: 'Green Bananas',
     description: 'Organic green bananas, perfect for cooking traditional African dishes or for ripening at home.',
     basePrice: 1.20,
@@ -105,7 +106,7 @@ const products = [
   },
   {
     id: '7',
-    image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?q=80&w=800&auto=format&fit=crop', // Avocado
+    image: '/public/lovable-uploads/0265b81e-2b35-46e9-917a-54611c5eac68.png', // Avocado
     title: 'Organic Avocados',
     description: 'Creamy, nutrient-rich avocados grown in the highlands. Perfect for salads, smoothies, and spreads.',
     basePrice: 3.80,
@@ -121,7 +122,7 @@ const products = [
   },
   {
     id: '8',
-    image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?q=80&w=800&auto=format&fit=crop', // Macadamia
+    image: '/public/lovable-uploads/2273f442-e68e-486c-b902-6e858c97ff33.png', // Macadamia
     title: 'Macadamia Nuts',
     description: 'Premium grade macadamia nuts with high oil content. Perfect for snacking and gourmet food production.',
     basePrice: 12.50,
@@ -137,7 +138,7 @@ const products = [
   },
   {
     id: '9',
-    image: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=800&auto=format&fit=crop', // Miraa (Khat)
+    image: '/public/lovable-uploads/a10005da-4901-4d00-b3dc-a0a2bafebc74.png', // Miraa (Khat)
     title: 'Fresh Miraa (Khat)',
     description: 'High-quality miraa leaves, carefully harvested and packaged for maximum freshness and potency.',
     basePrice: 8.00,
@@ -153,7 +154,7 @@ const products = [
   },
   {
     id: '10',
-    image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?q=80&w=800&auto=format&fit=crop', // Coffee
+    image: '/public/lovable-uploads/5f123a7f-a6d7-4f54-97ac-a732016d7187.png', // Coffee
     title: 'Premium Coffee Beans',
     description: 'Specialty grade Arabica coffee beans grown at high altitude. Rich flavor profile with notes of chocolate and citrus.',
     basePrice: 15.20,

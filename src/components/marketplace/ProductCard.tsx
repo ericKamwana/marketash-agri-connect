@@ -56,11 +56,14 @@ const ProductCard = ({
     }
   };
   
+  // Fix image path if it starts with '/public'
+  const imageSrc = image.startsWith('/public') ? image.substring(7) : image;
+  
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow card-hover">
       <div className="relative h-48">
         <img 
-          src={image} 
+          src={imageSrc} 
           alt={title}
           className="w-full h-full object-cover"
         />
