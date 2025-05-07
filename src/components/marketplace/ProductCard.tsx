@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Calendar, MapPin, ArrowUp, ArrowDown, Truck } from 'lucide-react';
 import ButtonWithIcon from '@/components/ui/button-with-icon';
@@ -21,6 +20,7 @@ interface ProductCardProps {
     rating: number;
   };
   isLoading?: boolean;
+  imageLazyLoad?: boolean;
 }
 
 const ProductCard = ({
@@ -34,11 +34,13 @@ const ProductCard = ({
   location,
   harvestDate,
   farmer,
-  isLoading = false
+  isLoading = false,
+  imageLazyLoad = false
 }: ProductCardProps) => {
   const { toast } = useToast();
   const [bidAmount, setBidAmount] = useState(basePrice);
   const [showBidForm, setShowBidForm] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(!imageLazyLoad);
   
   const handleBidSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,10 +107,13 @@ const ProductCard = ({
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow card-hover">
       <div className="relative h-48">
+        {!imageLoaded && <Skeleton className="w-full h-full absolute inset-0" />}
         <img 
           src={imageSrc} 
           alt={title}
-          className="w-full h-full object-cover"
+          className={`w-full h-full object-cover ${!imageLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+          loading={imageLazyLoad ? "lazy" : "eager"}
+          onLoad={() => setImageLoaded(true)}
         />
         <div className="absolute top-3 left-3 bg-marketash-green text-white px-2 py-1 rounded text-sm font-medium">
           {quantity} {unit} available
@@ -139,6 +144,7 @@ const ProductCard = ({
               src={farmer.image}
               alt={farmer.name}
               className="h-8 w-8 rounded-full mr-2 object-cover"
+              loading="lazy"
             />
             <div>
               <div className="text-sm font-medium">{farmer.name}</div>
