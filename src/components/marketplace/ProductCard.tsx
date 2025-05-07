@@ -5,9 +5,16 @@ import ButtonWithIcon from '@/components/ui/button-with-icon';
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { bidSchema } from '@/lib/validations/schema';
-import { toast } from 'sonner';
+import { toast as sonnerToast } from 'sonner';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useSupabase } from '@/lib/supabase/supabase-provider';
+
+interface FarmerType {
+  name: string;
+  image: string;
+  rating: number;
+  id?: string; // Add optional id property
+}
 
 interface ProductCardProps {
   id: string;
@@ -19,11 +26,7 @@ interface ProductCardProps {
   quantity: number;
   location: string;
   harvestDate: string;
-  farmer: {
-    name: string;
-    image: string;
-    rating: number;
-  };
+  farmer: FarmerType;
   isLoading?: boolean;
   imageLazyLoad?: boolean;
 }
@@ -115,8 +118,10 @@ const ProductCard = ({
       if (insertError) throw new Error(insertError.message);
       
       // Submit notification to farmer
+      // Use a fallback ID if farmer.id is not available
+      const farmerId = farmer.id || 'farmer-123';
       await supabase.from('notifications').insert({
-        user_id: farmer.id, // This would be the actual farmer ID in a real app
+        user_id: farmerId,
         type: 'bid',
         title: 'New Bid Received',
         message: `A new bid of $${bidAmount.toFixed(2)} was placed on your product: ${title}`,
@@ -131,7 +136,7 @@ const ProductCard = ({
       setShowBidForm(false);
       
       // Show success toast with Sonner
-      toast.success("Bid submitted successfully!", {
+      sonnerToast.success("Bid submitted successfully!", {
         description: "You will be notified when the farmer responds.",
       });
     } catch (error: any) {
@@ -139,7 +144,7 @@ const ProductCard = ({
       setBidError(error.message || "Failed to submit bid. Please try again.");
       
       // Show error toast with Sonner
-      toast.error("Bid submission failed", {
+      sonnerToast.error("Bid submission failed", {
         description: error.message || "Please try again later.",
       });
     } finally {

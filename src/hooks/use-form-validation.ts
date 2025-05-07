@@ -29,9 +29,19 @@ export function useFormValidation<T>(schema: ZodSchema<T>) {
 
   const validateField = (fieldName: string, value: unknown) => {
     try {
-      // Create a partial schema for just this field
+      // Create a partial schema just for this field
+      // Use a more compatible approach instead of pick
       const partialData = { [fieldName]: value };
-      schema.pick({ [fieldName]: true } as any).parse(partialData);
+      const partialSchema = schema as any;
+      
+      // We'll try to parse just the field we're interested in
+      const partial = { [fieldName]: partialSchema.shape?.[fieldName] };
+      if (partial[fieldName]) {
+        partial[fieldName].parse(value);
+      } else {
+        // If we can't isolate the field schema, validate against the whole schema
+        schema.parse(partialData);
+      }
       
       // Clear error for this field if validation passes
       setErrors(prev => {
