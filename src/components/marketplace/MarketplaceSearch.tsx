@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Search } from 'lucide-react';
 
 interface MarketplaceSearchProps {
@@ -9,11 +9,26 @@ interface MarketplaceSearchProps {
 
 const MarketplaceSearch = ({ onSearch, initialQuery = '' }: MarketplaceSearchProps) => {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
+  
+  // Update the debounced value after a delay
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300); // 300ms delay
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchQuery]);
+  
+  // Call onSearch only when debounced value changes
+  useEffect(() => {
+    onSearch(debouncedQuery);
+  }, [debouncedQuery, onSearch]);
   
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    onSearch(query);
+    setSearchQuery(e.target.value);
   };
   
   return (
