@@ -1,8 +1,13 @@
+
 import { useState } from 'react';
-import { Calendar, MapPin, ArrowUp, ArrowDown, Truck } from 'lucide-react';
+import { Calendar, MapPin, ArrowUp, ArrowDown, Truck, AlertCircle } from 'lucide-react';
 import ButtonWithIcon from '@/components/ui/button-with-icon';
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { bidSchema } from '@/lib/validations/schema';
+import { toast } from 'sonner';
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { useSupabase } from '@/lib/supabase/supabase-provider';
 
 interface ProductCardProps {
   id: string;
@@ -41,23 +46,116 @@ const ProductCard = ({
   const [bidAmount, setBidAmount] = useState(basePrice);
   const [showBidForm, setShowBidForm] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(!imageLazyLoad);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bidError, setBidError] = useState<string | null>(null);
+  const { supabase, user } = useSupabase();
   
-  const handleBidSubmit = (e: React.FormEvent) => {
+  const validateBid = (amount: number) => {
+    try {
+      bidSchema.parse({
+        productId: id,
+        bidAmount: amount,
+        userId: user?.id,
+      });
+      return true;
+    } catch (error: any) {
+      const formattedError = error.errors?.[0]?.message || "Invalid bid amount";
+      setBidError(formattedError);
+      return false;
+    }
+  };
+  
+  const handleBidSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Bid submitted!",
-      description: `Your bid of $${bidAmount.toFixed(2)} per ${unit} has been sent to the farmer.`,
-    });
-    setShowBidForm(false);
+    setBidError(null);
+    
+    if (!validateBid(bidAmount)) {
+      return;
+    }
+    
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication required",
+        description: "Please sign in to place a bid.",
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Check for bid conflicts (another user bidding at the same time)
+      const { data: latestBid, error: fetchError } = await supabase
+        .from('bids')
+        .select('amount')
+        .eq('product_id', id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+        throw new Error("Couldn't verify latest bid");
+      }
+      
+      if (latestBid && latestBid.amount >= bidAmount) {
+        setBidError(`Your bid must be higher than the current bid of $${latestBid.amount.toFixed(2)}`);
+        setIsSubmitting(false);
+        return;
+      }
+      
+      // Submit bid to database
+      const { error: insertError } = await supabase.from('bids').insert({
+        product_id: id,
+        user_id: user.id,
+        amount: bidAmount,
+        status: 'pending' // Will be processed by fraud detection
+      });
+      
+      if (insertError) throw new Error(insertError.message);
+      
+      // Submit notification to farmer
+      await supabase.from('notifications').insert({
+        user_id: farmer.id, // This would be the actual farmer ID in a real app
+        type: 'bid',
+        title: 'New Bid Received',
+        message: `A new bid of $${bidAmount.toFixed(2)} was placed on your product: ${title}`,
+        reference_id: id,
+        read: false
+      });
+      
+      toast({
+        title: "Bid submitted!",
+        description: `Your bid of $${bidAmount.toFixed(2)} per ${unit} has been sent to the farmer.`,
+      });
+      setShowBidForm(false);
+      
+      // Show success toast with Sonner
+      toast.success("Bid submitted successfully!", {
+        description: "You will be notified when the farmer responds.",
+      });
+    } catch (error: any) {
+      console.error("Bid submission error:", error);
+      setBidError(error.message || "Failed to submit bid. Please try again.");
+      
+      // Show error toast with Sonner
+      toast.error("Bid submission failed", {
+        description: error.message || "Please try again later.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   const increaseBid = () => {
     setBidAmount(prev => +(prev + 0.5).toFixed(2));
+    setBidError(null);
   };
   
   const decreaseBid = () => {
     if (bidAmount > basePrice) {
       setBidAmount(prev => +(prev - 0.5).toFixed(2));
+      setBidError(null);
     }
   };
   
@@ -163,6 +261,14 @@ const ProductCard = ({
           </div>
         </div>
         
+        {bidError && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{bidError}</AlertDescription>
+          </Alert>
+        )}
+        
         {!showBidForm ? (
           <div className="flex justify-between gap-2">
             <ButtonWithIcon 
@@ -199,6 +305,7 @@ const ProductCard = ({
                   const value = parseFloat(e.target.value);
                   if (!isNaN(value) && value >= basePrice) {
                     setBidAmount(value);
+                    setBidError(null);
                   }
                 }}
                 className="flex-1 px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-marketash-blue"
@@ -226,7 +333,10 @@ const ProductCard = ({
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => setShowBidForm(false)}
+                onClick={() => {
+                  setShowBidForm(false);
+                  setBidError(null);
+                }}
                 className="flex-1 bg-gray-100 text-gray-700 font-medium rounded-md px-4 py-2 hover:bg-gray-200"
                 aria-label="Cancel bidding"
               >
@@ -234,10 +344,11 @@ const ProductCard = ({
               </button>
               <button
                 type="submit"
-                className="flex-1 bg-marketash-blue text-white font-medium rounded-md px-4 py-2 hover:bg-marketash-blue/90"
+                disabled={isSubmitting}
+                className="flex-1 bg-marketash-blue text-white font-medium rounded-md px-4 py-2 hover:bg-marketash-blue/90 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Submit your bid"
               >
-                Submit Bid
+                {isSubmitting ? "Submitting..." : "Submit Bid"}
               </button>
             </div>
           </form>
