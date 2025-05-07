@@ -164,8 +164,8 @@ const ProductCard = ({
     }
   };
   
-  // Fix image path if it starts with '/public'
-  const imageSrc = image.startsWith('/public') ? image.substring(7) : image;
+  // Ensure we get the correct image path
+  const imageSrc = image;
   
   if (isLoading) {
     return (

@@ -23,7 +23,7 @@ const MarketplaceHeader = ({ onSearch, searchQuery }: MarketplaceHeaderProps) =>
         </div>
         <div className="hidden md:block">
           <img 
-            src="https://images.unsplash.com/photo-1493962853295-0fd70327578a?q=80&w=800&auto=format&fit=crop" 
+            src="/lovable-uploads/41809536-e626-4f4b-9665-6898b6f4af3b.png" 
             alt="Marketplace" 
             className="rounded-lg h-48 w-full object-cover"
             loading="eager"

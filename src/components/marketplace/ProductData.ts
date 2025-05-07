@@ -3,7 +3,7 @@
 const products = [
   {
     id: '1',
-    image: '/public/lovable-uploads/8c84fdc3-7333-4cca-8c21-a1c14689e8e5.png', // Organic Tomatoes
+    image: '/lovable-uploads/ad6a5c34-3177-4b2a-9825-d07f23d715a2.png', // Tomatoes
     title: 'Organic Tomatoes',
     description: 'Fresh, pesticide-free tomatoes grown using organic farming methods. Perfect for salads and cooking.',
     basePrice: 2.50,
@@ -19,7 +19,7 @@ const products = [
   },
   {
     id: '2',
-    image: '/public/lovable-uploads/ba229909-bc77-4575-b1d1-273245dd7769.png', // Premium Cassava
+    image: '/lovable-uploads/fbc1f1ae-5857-43fd-8175-dd8b7f24d0d6.png', // Cassava
     title: 'Premium Cassava',
     description: 'High-yield cassava variety with excellent starch content. Ideal for flour and industrial processing.',
     basePrice: 1.20,
@@ -35,7 +35,7 @@ const products = [
   },
   {
     id: '3',
-    image: '/public/lovable-uploads/6be60b20-7ca8-4e86-a444-9eef79152848.png', // Red Onions
+    image: '/lovable-uploads/a753c13b-7cdc-4f0d-bebb-87f838b3b5bf.png', // Onions
     title: 'Red Onions',
     description: 'Sweet red onions grown in volcanic soil. Perfect for salads and cooking with extended shelf life.',
     basePrice: 1.80,
@@ -51,7 +51,7 @@ const products = [
   },
   {
     id: '4',
-    image: '/public/lovable-uploads/e684f887-1849-4787-8da2-6f47b9ff81c1.png', // Green Peppers
+    image: '/lovable-uploads/57d669c0-056c-42e8-92fe-824bd8758bc3.png', // Green Peppers
     title: 'Green Peppers',
     description: 'Fresh, crispy green peppers with excellent flavor. Great for salads, stir-fries, and stuffed peppers.',
     basePrice: 3.00,
@@ -67,7 +67,7 @@ const products = [
   },
   {
     id: '5',
-    image: '/public/lovable-uploads/6e635c75-6b2f-4f00-97b1-1b72a2a6d8ca.png', // Sweet Corn
+    image: '/lovable-uploads/e3f2019c-e264-493f-88f2-6762a660e345.png', // Corn
     title: 'Sweet Corn',
     description: 'Non-GMO sweet corn with excellent sugar content. Perfect for grilling, boiling, or adding to salads.',
     basePrice: 1.50,
@@ -83,7 +83,7 @@ const products = [
   },
   {
     id: '6',
-    image: '/public/lovable-uploads/4f9557f6-fe5d-468c-9617-3795c3273de8.png', // Green Bananas
+    image: '/lovable-uploads/66db3fe9-4879-4bc3-82f2-507e5a52dde0.png', // Green Bananas
     title: 'Green Bananas',
     description: 'Organic green bananas, perfect for cooking traditional African dishes or for ripening at home.',
     basePrice: 1.20,
@@ -99,7 +99,7 @@ const products = [
   },
   {
     id: '7',
-    image: '/public/lovable-uploads/0265b81e-2b35-46e9-917a-54611c5eac68.png', // Avocado
+    image: '/lovable-uploads/275299a5-02d0-4ac2-9eee-6d79b4b16998.png', // Avocado
     title: 'Organic Avocados',
     description: 'Creamy, nutrient-rich avocados grown in the highlands. Perfect for salads, smoothies, and spreads.',
     basePrice: 3.80,
@@ -115,7 +115,7 @@ const products = [
   },
   {
     id: '8',
-    image: '/public/lovable-uploads/2273f442-e68e-486c-b902-6e858c97ff33.png', // Macadamia
+    image: '/lovable-uploads/0c302b22-0e10-4ad5-bdd0-baea0c2b458a.png', // Macadamia
     title: 'Macadamia Nuts',
     description: 'Premium grade macadamia nuts with high oil content. Perfect for snacking and gourmet food production.',
     basePrice: 12.50,
@@ -131,7 +131,7 @@ const products = [
   },
   {
     id: '9',
-    image: '/public/lovable-uploads/a10005da-4901-4d00-b3dc-a0a2bafebc74.png', // Miraa (Khat)
+    image: '/lovable-uploads/41734420-a271-4531-a16a-23c9b6b2db59.png', // Khat
     title: 'Fresh Miraa (Khat)',
     description: 'High-quality miraa leaves, carefully harvested and packaged for maximum freshness and potency.',
     basePrice: 8.00,
@@ -147,7 +147,7 @@ const products = [
   },
   {
     id: '10',
-    image: '/public/lovable-uploads/5f123a7f-a6d7-4f54-97ac-a732016d7187.png', // Coffee
+    image: '/lovable-uploads/eb2637c3-73ea-433e-a226-9b23b73ab26e.png', // Coffee
     title: 'Premium Coffee Beans',
     description: 'Specialty grade Arabica coffee beans grown at high altitude. Rich flavor profile with notes of chocolate and citrus.',
     basePrice: 15.20,
