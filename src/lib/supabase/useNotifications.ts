@@ -139,8 +139,7 @@ export function useNotifications() {
           const notification = payload.new as Notification;
           
           // Show toast for new notification
-          toast({
-            title: notification.title,
+          toast(notification.title, {
             description: notification.message,
           });
           

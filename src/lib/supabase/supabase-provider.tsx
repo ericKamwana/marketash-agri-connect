@@ -2,10 +2,19 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { createClient, SupabaseClient, User } from "@supabase/supabase-js";
 import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 // Create Supabase client
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Fallback values for development - ONLY USE IN DEV MODE
+const fallbackUrl = "https://your-project-ref.supabase.co";
+const fallbackKey = "your-anon-key-placeholder";
+
+// Use fallbacks only if env variables are missing
+const safeSupabaseUrl = supabaseUrl || fallbackUrl;
+const safeSupabaseAnonKey = supabaseAnonKey || fallbackKey;
 
 type SupabaseContext = {
   supabase: SupabaseClient;
@@ -29,9 +38,20 @@ export const useSupabase = () => {
 export const SupabaseProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const { toast } = useToast();
+  const { toast: uiToast } = useToast();
 
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  // Create Supabase client safely
+  const supabase = createClient(safeSupabaseUrl, safeSupabaseAnonKey);
+
+  // Check if the environment variables are missing and show a warning
+  useEffect(() => {
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn(
+        "Supabase environment variables (VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY) are missing. " +
+        "Using fallback values. Please set these variables for proper functionality."
+      );
+    }
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -39,12 +59,12 @@ export const SupabaseProvider = ({ children }: { children: React.ReactNode }) =>
       if (error) {
         throw error;
       }
-      toast({
+      uiToast({
         title: "Welcome back!",
         description: "You have successfully signed in.",
       });
     } catch (error: any) {
-      toast({
+      uiToast({
         variant: "destructive",
         title: "Sign in failed",
         description: error.message,
@@ -59,12 +79,12 @@ export const SupabaseProvider = ({ children }: { children: React.ReactNode }) =>
       if (error) {
         throw error;
       }
-      toast({
+      uiToast({
         title: "Account created!",
         description: "Please check your email for verification.",
       });
     } catch (error: any) {
-      toast({
+      uiToast({
         variant: "destructive",
         title: "Sign up failed",
         description: error.message,
@@ -79,12 +99,12 @@ export const SupabaseProvider = ({ children }: { children: React.ReactNode }) =>
       if (error) {
         throw error;
       }
-      toast({
+      uiToast({
         title: "Signed out",
         description: "You have been successfully signed out.",
       });
     } catch (error: any) {
-      toast({
+      uiToast({
         variant: "destructive",
         title: "Sign out failed",
         description: error.message,
