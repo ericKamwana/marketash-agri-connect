@@ -3,15 +3,21 @@ import { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { Camera, Upload, X, ArrowRight, Check } from 'lucide-react';
+import { useCropDiagnosis } from '@/lib/supabase/useCropDiagnosis';
+import { useSupabase } from '@/lib/supabase/supabase-provider';
+import { useNavigate } from 'react-router-dom';
 
 const CropDoctor = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [cropType, setCropType] = useState<string>('tomato');
+  const { useDiagnoseCropMutation } = useCropDiagnosis();
+  const { mutate: diagnoseCrop, isPending: isAnalyzing } = useDiagnoseCropMutation();
   const [result, setResult] = useState<any | null>(null);
-  const { toast } = useToast();
+  const { user } = useSupabase();
+  const navigate = useNavigate();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
@@ -25,9 +31,8 @@ const CropDoctor = () => {
         };
         reader.readAsDataURL(file);
       } else {
-        toast({
-          title: "Invalid file type",
-          description: "Please upload an image file.",
+        toast("Invalid file type. Please upload an image file.", {
+          description: "Only image files are supported.",
           variant: "destructive",
         });
       }
@@ -41,31 +46,50 @@ const CropDoctor = () => {
   };
 
   const analyzeImage = () => {
-    setIsAnalyzing(true);
-    
-    // Simulate AI analysis (in a real app, this would call an API)
-    setTimeout(() => {
-      setIsAnalyzing(false);
-      // Mock disease detection result
-      setResult({
-        disease: "Tomato Late Blight",
-        confidence: 89,
-        description: "A fungal disease that affects tomatoes and potatoes, causing brown spots on leaves that eventually turn the entire leaf brown.",
-        treatment: [
-          "Apply copper-based fungicide to healthy plants as prevention",
-          "Remove and destroy infected plant parts",
-          "Ensure proper spacing between plants for good air circulation",
-          "Avoid overhead watering to keep foliage dry"
-        ],
-        prevention: [
-          "Use disease-resistant varieties",
-          "Practice crop rotation",
-          "Water at the base of plants instead of overhead",
-          "Apply preventative fungicide treatments during wet seasons"
-        ]
+    // Check if user is logged in
+    if (!user) {
+      toast("Authentication Required", {
+        description: "Please log in to use the Crop Doctor feature.",
+        action: {
+          label: "Login",
+          onClick: () => navigate('/auth'),
+        },
       });
-    }, 2000);
+      return;
+    }
+
+    if (!selectedFile) return;
+    
+    diagnoseCrop(
+      { image: selectedFile, cropType }, 
+      {
+        onSuccess: (data) => {
+          // Transform the diagnosis data to match the UI format
+          setResult({
+            disease: data.diagnosis,
+            confidence: Math.round(data.confidence_score * 100),
+            description: "A fungal disease that affects various plants, causing brown spots on leaves that eventually turn the entire leaf brown.",
+            treatment: data.recommendation.split('. ').filter(item => item.trim() !== ''),
+            prevention: [
+              "Use disease-resistant varieties",
+              "Practice crop rotation",
+              "Water at the base of plants instead of overhead",
+              "Apply preventative fungicide treatments during wet seasons"
+            ]
+          });
+        }
+      }
+    );
   };
+
+  const cropTypes = [
+    { value: 'tomato', label: 'Tomato' },
+    { value: 'potato', label: 'Potato' },
+    { value: 'corn', label: 'Corn' },
+    { value: 'rice', label: 'Rice' },
+    { value: 'wheat', label: 'Wheat' },
+    { value: 'other', label: 'Other' },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -100,6 +124,25 @@ const CropDoctor = () => {
               <p className="text-gray-600 mb-6">
                 Take a clear photo of the affected plant part (leaf, stem, fruit) for the most accurate diagnosis.
               </p>
+              
+              {/* Crop Type Selection */}
+              <div className="mb-6">
+                <label htmlFor="crop-type" className="block text-sm font-medium text-gray-700 mb-1">
+                  Select Crop Type
+                </label>
+                <select
+                  id="crop-type"
+                  value={cropType}
+                  onChange={(e) => setCropType(e.target.value)}
+                  className="w-full border-gray-300 rounded-md shadow-sm focus:border-marketash-blue focus:ring focus:ring-marketash-blue focus:ring-opacity-50"
+                >
+                  {cropTypes.map((crop) => (
+                    <option key={crop.value} value={crop.value}>
+                      {crop.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
               
               {!preview ? (
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">

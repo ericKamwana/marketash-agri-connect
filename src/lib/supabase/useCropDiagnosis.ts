@@ -56,7 +56,7 @@ export function useCropDiagnosis() {
       recommendation: "Apply copper-based fungicide and ensure proper spacing between plants to improve air circulation."
     };
 
-    // Save diagnosis to database
+    // Save diagnosis to database using the correct table name
     const { data: diagnosisData, error: diagnosisError } = await supabase
       .from("crop_diagnosis")
       .insert({
