@@ -57,8 +57,9 @@ export function useCropDiagnosis() {
     };
 
     // Save diagnosis to database using the correct table name
-    const { data: diagnosisData, error: diagnosisError } = await supabase
-      .from("crop_diagnosis")
+    // Use 'from' with type assertion to work around TypeScript errors
+    const { data: diagnosisData, error: diagnosisError } = await (supabase
+      .from("crop_diagnosis" as any)
       .insert({
         user_id: user.id,
         image_url: imageUrl,
@@ -66,9 +67,9 @@ export function useCropDiagnosis() {
         diagnosis: mockDiagnosis.diagnosis,
         confidence_score: mockDiagnosis.confidence_score,
         recommendation: mockDiagnosis.recommendation
-      })
+      } as any)
       .select()
-      .single();
+      .single() as any);
 
     if (diagnosisError) {
       console.error("Error saving diagnosis:", diagnosisError);
@@ -88,7 +89,7 @@ export function useCropDiagnosis() {
         });
         toast.success("Crop diagnosis complete!");
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         toast.error(`Diagnosis failed: ${error.message}`);
       },
     });
@@ -98,11 +99,12 @@ export function useCropDiagnosis() {
   const fetchDiagnosisHistory = async () => {
     if (!user) return [];
 
-    const { data, error } = await supabase
-      .from("crop_diagnosis")
+    // Use 'from' with type assertion to work around TypeScript errors
+    const { data, error } = await (supabase
+      .from("crop_diagnosis" as any)
       .select("*")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false }) as any);
 
     if (error) {
       console.error("Error fetching diagnosis history:", error);
@@ -125,12 +127,13 @@ export function useCropDiagnosis() {
   const fetchDiagnosisById = async (id: string) => {
     if (!user) return null;
 
-    const { data, error } = await supabase
-      .from("crop_diagnosis")
+    // Use 'from' with type assertion to work around TypeScript errors
+    const { data, error } = await (supabase
+      .from("crop_diagnosis" as any)
       .select("*")
       .eq("id", id)
       .eq("user_id", user.id)
-      .single();
+      .single() as any);
 
     if (error) {
       console.error(`Error fetching diagnosis with ID ${id}:`, error);
