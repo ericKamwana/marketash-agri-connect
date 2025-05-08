@@ -1,11 +1,12 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useSupabase } from "./supabase-provider";
 import { toast } from "sonner";
 
-// Product type interface
 export interface Product {
   id: string;
+  user_id: string;
   title: string;
   description: string;
   image: string;
@@ -15,124 +16,167 @@ export interface Product {
   location: string;
   harvest_date: string;
   category: string;
+  status: 'available' | 'sold' | 'withdrawn';
   created_at: string;
-  user_id: string;
-  farmer: {
-    name: string;
-    image: string;
-    rating: number;
+  updated_at: string;
+  profiles: {
+    display_name: string | null;
+    avatar_url: string | null;
+    rating: number | null;
   };
 }
 
-export interface ProductBid {
-  id: string;
-  product_id: string;
-  bidder_id: string;
-  bid_amount: number;
-  status: "pending" | "accepted" | "rejected";
-  created_at: string;
+export interface ProductFormData {
+  title: string;
+  description: string;
+  image: File | null;
+  base_price: number;
+  unit: string;
   quantity: number;
-  bidder: {
-    name: string;
-    image: string;
-  };
+  location: string;
+  category: string;
 }
 
-export function useProducts() {
-  const { supabase, user } = useSupabase();
+export const useProducts = () => {
+  const { user } = useSupabase();
   const queryClient = useQueryClient();
-
-  // Fetch all products
-  const fetchProducts = async (search: string = "") => {
+  
+  // Fetch all available products
+  const fetchProducts = async ({ 
+    category = '',
+    location = '',
+    search = '',
+    sortBy = 'created_at',
+    sortOrder = 'desc',
+  } = {}) => {
     let query = supabase
-      .from("products")
+      .from('products')
       .select(`
         *,
-        farmer:users!farmer_id(name, image, rating)
-      `);
-
-    if (search) {
-      query = query.ilike("title", `%${search}%`).or(`description.ilike.%${search}%,location.ilike.%${search}%`);
-    }
-
-    const { data, error } = await query.order("created_at", { ascending: false });
-
+        profiles (
+          display_name,
+          avatar_url,
+          rating
+        )
+      `)
+      .eq('status', 'available');
+      
+    // Apply filters if provided
+    if (category) query = query.eq('category', category);
+    if (location) query = query.eq('location', location);
+    if (search) query = query.ilike('title', `%${search}%`);
+    
+    // Apply sorting
+    query = query.order(sortBy, { ascending: sortOrder === 'asc' });
+    
+    const { data, error } = await query;
+    
     if (error) {
       console.error("Error fetching products:", error);
-      throw new Error(error.message);
+      throw error;
     }
-
+    
     return data as Product[];
   };
-
+  
   // Use the fetchProducts function with react-query
-  const useProductsQuery = (search: string = "") => {
+  const useProductsQuery = (filters = {}) => {
     return useQuery({
-      queryKey: ["products", search],
-      queryFn: () => fetchProducts(search),
-      staleTime: 60 * 1000, // 1 minute
+      queryKey: ['products', filters],
+      queryFn: () => fetchProducts(filters),
     });
   };
-
+  
   // Fetch a single product by ID
   const fetchProductById = async (id: string) => {
     const { data, error } = await supabase
-      .from("products")
+      .from('products')
       .select(`
         *,
-        farmer:users!farmer_id(name, image, rating)
+        profiles (
+          display_name,
+          avatar_url,
+          rating
+        )
       `)
-      .eq("id", id)
+      .eq('id', id)
       .single();
-
+      
     if (error) {
-      console.error(`Error fetching product with ID ${id}:`, error);
-      throw new Error(error.message);
+      console.error(`Error fetching product ${id}:`, error);
+      throw error;
     }
-
+    
     return data as Product;
   };
-
+  
   // Use the fetchProductById function with react-query
   const useProductQuery = (id: string) => {
     return useQuery({
-      queryKey: ["products", id],
+      queryKey: ['products', id],
       queryFn: () => fetchProductById(id),
       enabled: !!id,
     });
   };
-
+  
   // Create a new product
-  const createProduct = async (product: Omit<Product, "id" | "created_at" | "user_id" | "farmer">) => {
-    if (!user) {
-      throw new Error("You must be logged in to create a product");
+  const createProduct = async (productData: ProductFormData) => {
+    if (!user) throw new Error("You must be logged in to create a product");
+    
+    let imageUrl = '';
+    
+    // Upload image if provided
+    if (productData.image) {
+      const fileExt = productData.image.name.split('.').pop();
+      const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${user.id}/${fileName}`;
+      
+      const { error: uploadError, data } = await supabase.storage
+        .from('product_images')
+        .upload(filePath, productData.image);
+        
+      if (uploadError) throw uploadError;
+      
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('product_images')
+        .getPublicUrl(filePath);
+        
+      imageUrl = publicUrl;
     }
-
+    
+    // Insert product into database
     const { data, error } = await supabase
-      .from("products")
+      .from('products')
       .insert({
-        ...product,
         user_id: user.id,
+        title: productData.title,
+        description: productData.description,
+        image: imageUrl,
+        base_price: productData.base_price,
+        unit: productData.unit,
+        quantity: productData.quantity,
+        location: productData.location,
+        category: productData.category,
       })
       .select()
       .single();
-
-    if (error) {
-      console.error("Error creating product:", error);
-      throw new Error(error.message);
-    }
-
-    return data;
+      
+    if (error) throw error;
+    
+    return data as Product;
   };
-
+  
   // Use the createProduct function with react-query
   const useCreateProductMutation = () => {
     return useMutation({
       mutationFn: createProduct,
       onSuccess: () => {
+        // Invalidate products cache to refetch the list
         queryClient.invalidateQueries({
-          queryKey: ["products"],
+          queryKey: ['products'],
         });
+        
         toast.success("Product created successfully");
       },
       onError: (error) => {
@@ -140,84 +184,75 @@ export function useProducts() {
       },
     });
   };
-
-  // Create a bid on a product
-  const createBid = async (bid: {
-    product_id: string;
-    bid_amount: number;
-    quantity: number;
-  }) => {
-    if (!user) {
-      throw new Error("You must be logged in to place a bid");
-    }
-
+  
+  // Fetch products for a specific user (e.g. for dashboard)
+  const fetchUserProducts = async (userId: string) => {
     const { data, error } = await supabase
-      .from("product_bids")
-      .insert({
-        ...bid,
-        bidder_id: user.id,
-        status: "pending",
-      })
+      .from('products')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+      
+    if (error) {
+      console.error("Error fetching user products:", error);
+      throw error;
+    }
+    
+    return data as Product[];
+  };
+  
+  // Use the fetchUserProducts function with react-query
+  const useUserProductsQuery = () => {
+    return useQuery({
+      queryKey: ['products', 'user', user?.id],
+      queryFn: () => fetchUserProducts(user!.id),
+      enabled: !!user,
+    });
+  };
+  
+  // Update product status (e.g. mark as sold or withdrawn)
+  const updateProductStatus = async ({ productId, status }: { productId: string, status: 'available' | 'sold' | 'withdrawn' }) => {
+    if (!user) throw new Error("You must be logged in to update a product");
+    
+    const { data, error } = await supabase
+      .from('products')
+      .update({ status })
+      .eq('id', productId)
+      .eq('user_id', user.id) // Make sure user owns the product
       .select()
       .single();
-
-    if (error) {
-      console.error("Error creating bid:", error);
-      throw new Error(error.message);
-    }
-
-    return data;
+      
+    if (error) throw error;
+    
+    return data as Product;
   };
-
-  // Use the createBid function with react-query
-  const useCreateBidMutation = () => {
+  
+  // Use the updateProductStatus function with react-query
+  const useUpdateProductStatusMutation = () => {
     return useMutation({
-      mutationFn: createBid,
-      onSuccess: (_, variables) => {
+      mutationFn: updateProductStatus,
+      onSuccess: (data) => {
+        // Invalidate queries for this specific product and all products
         queryClient.invalidateQueries({
-          queryKey: ["products", variables.product_id, "bids"],
+          queryKey: ['products', data.id],
         });
-        toast.success("Bid placed successfully");
+        queryClient.invalidateQueries({
+          queryKey: ['products'],
+        });
+        
+        toast.success(`Product marked as ${data.status}`);
       },
       onError: (error) => {
-        toast.error(`Failed to place bid: ${error.message}`);
+        toast.error(`Failed to update product: ${error.message}`);
       },
     });
   };
-
-  // Get bids for a specific product
-  const fetchProductBids = async (productId: string) => {
-    const { data, error } = await supabase
-      .from("product_bids")
-      .select(`
-        *,
-        bidder:users!bidder_id(name, image)
-      `)
-      .eq("product_id", productId)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error(`Error fetching bids for product ${productId}:`, error);
-      throw new Error(error.message);
-    }
-
-    return data as ProductBid[];
-  };
-
-  // Use the fetchProductBids function with react-query
-  const useProductBidsQuery = (productId: string) => {
-    return useQuery({
-      queryKey: ["products", productId, "bids"],
-      queryFn: () => fetchProductBids(productId),
-      enabled: !!productId,
-    });
-  };
-
+  
   return {
     useProductsQuery,
     useProductQuery,
     useCreateProductMutation,
-    useCreateBidMutation,
-    useProductBidsQuery,
+    useUserProductsQuery,
+    useUpdateProductStatusMutation,
   };
-}
+};

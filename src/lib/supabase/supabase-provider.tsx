@@ -1,27 +1,28 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { createClient, SupabaseClient, User } from "@supabase/supabase-js";
+import { User, Session } from "@supabase/supabase-js";
 import { useToast } from "@/components/ui/use-toast";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-// Create Supabase client
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-// Fallback values for development - ONLY USE IN DEV MODE
-const fallbackUrl = "https://your-project-ref.supabase.co";
-const fallbackKey = "your-anon-key-placeholder";
-
-// Use fallbacks only if env variables are missing
-const safeSupabaseUrl = supabaseUrl || fallbackUrl;
-const safeSupabaseAnonKey = supabaseAnonKey || fallbackKey;
+type UserProfile = {
+  id: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  location: string | null;
+  credit_score: number | null;
+  user_type: 'farmer' | 'buyer' | 'admin' | null;
+  rating: number | null;
+};
 
 type SupabaseContext = {
-  supabase: SupabaseClient;
+  supabase: typeof supabase;
   user: User | null;
+  userProfile: UserProfile | null;
+  session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, options?: any) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -37,28 +38,38 @@ export const useSupabase = () => {
 
 export const SupabaseProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const { toast: uiToast } = useToast();
 
-  // Create Supabase client safely
-  const supabase = createClient(safeSupabaseUrl, safeSupabaseAnonKey);
-
-  // Check if the environment variables are missing and show a warning
-  useEffect(() => {
-    if (!supabaseUrl || !supabaseAnonKey) {
-      console.warn(
-        "Supabase environment variables (VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY) are missing. " +
-        "Using fallback values. Please set these variables for proper functionality."
-      );
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+        
+      if (error) throw error;
+      
+      if (data) {
+        setUserProfile(data as UserProfile);
+      }
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
     }
-  }, []);
+  };
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        throw error;
+      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      
+      if (data.user) {
+        await fetchUserProfile(data.user.id);
       }
+      
       uiToast({
         title: "Welcome back!",
         description: "You have successfully signed in.",
@@ -73,12 +84,16 @@ export const SupabaseProvider = ({ children }: { children: React.ReactNode }) =>
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, options?: any) => {
     try {
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) {
-        throw error;
-      }
+      const { error } = await supabase.auth.signUp({ 
+        email, 
+        password, 
+        options: options?.options 
+      });
+      
+      if (error) throw error;
+      
       uiToast({
         title: "Account created!",
         description: "Please check your email for verification.",
@@ -96,9 +111,10 @@ export const SupabaseProvider = ({ children }: { children: React.ReactNode }) =>
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
+      
+      setUserProfile(null);
+      
       uiToast({
         title: "Signed out",
         description: "You have been successfully signed out.",
@@ -115,14 +131,31 @@ export const SupabaseProvider = ({ children }: { children: React.ReactNode }) =>
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        setSession(session);
         setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // Use setTimeout to prevent the potential Supabase deadlock
+          setTimeout(() => {
+            fetchUserProfile(session.user.id);
+          }, 0);
+        } else {
+          setUserProfile(null);
+        }
+        
         setLoading(false);
       }
     );
 
     // Initial session check
     supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
       setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        fetchUserProfile(session.user.id);
+      }
+      
       setLoading(false);
     });
 
@@ -131,9 +164,11 @@ export const SupabaseProvider = ({ children }: { children: React.ReactNode }) =>
     };
   }, []);
 
-  const value = {
+  const value: SupabaseContext = {
     supabase,
     user,
+    userProfile,
+    session,
     loading,
     signIn,
     signUp,
