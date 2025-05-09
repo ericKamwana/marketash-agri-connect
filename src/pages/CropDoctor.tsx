@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -32,8 +31,7 @@ const CropDoctor = () => {
         reader.readAsDataURL(file);
       } else {
         toast("Invalid file type. Please upload an image file.", {
-          description: "Only image files are supported.",
-          variant: "destructive",
+          description: "Only image files are supported."
         });
       }
     }

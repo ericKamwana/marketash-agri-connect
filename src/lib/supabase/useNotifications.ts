@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSupabase } from "./supabase-provider";
@@ -12,6 +11,7 @@ export interface Notification {
   type: string;
   read: boolean;
   data: any;
+  reference_id?: string;
   created_at: string;
 }
 
@@ -80,7 +80,7 @@ export function useNotifications() {
           queryKey: ["notifications"],
         });
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         toast.error(`Failed to mark notification as read: ${error.message}`);
       },
     });
@@ -115,7 +115,7 @@ export function useNotifications() {
           queryKey: ["notifications"],
         });
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         toast.error(`Failed to mark all notifications as read: ${error.message}`);
       },
     });

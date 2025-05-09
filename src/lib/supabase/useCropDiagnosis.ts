@@ -56,10 +56,9 @@ export function useCropDiagnosis() {
       recommendation: "Apply copper-based fungicide and ensure proper spacing between plants to improve air circulation."
     };
 
-    // Save diagnosis to database using the correct table name
-    // Use 'from' with type assertion to work around TypeScript errors
-    const { data: diagnosisData, error: diagnosisError } = await (supabase
-      .from("crop_diagnosis" as any)
+    // Save diagnosis to database
+    const { data: diagnosisData, error: diagnosisError } = await supabase
+      .from("crop_diagnosis")
       .insert({
         user_id: user.id,
         image_url: imageUrl,
@@ -67,9 +66,9 @@ export function useCropDiagnosis() {
         diagnosis: mockDiagnosis.diagnosis,
         confidence_score: mockDiagnosis.confidence_score,
         recommendation: mockDiagnosis.recommendation
-      } as any)
+      })
       .select()
-      .single() as any);
+      .single();
 
     if (diagnosisError) {
       console.error("Error saving diagnosis:", diagnosisError);
@@ -99,12 +98,11 @@ export function useCropDiagnosis() {
   const fetchDiagnosisHistory = async () => {
     if (!user) return [];
 
-    // Use 'from' with type assertion to work around TypeScript errors
-    const { data, error } = await (supabase
-      .from("crop_diagnosis" as any)
+    const { data, error } = await supabase
+      .from("crop_diagnosis")
       .select("*")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false }) as any);
+      .order("created_at", { ascending: false });
 
     if (error) {
       console.error("Error fetching diagnosis history:", error);
@@ -127,13 +125,12 @@ export function useCropDiagnosis() {
   const fetchDiagnosisById = async (id: string) => {
     if (!user) return null;
 
-    // Use 'from' with type assertion to work around TypeScript errors
-    const { data, error } = await (supabase
-      .from("crop_diagnosis" as any)
+    const { data, error } = await supabase
+      .from("crop_diagnosis")
       .select("*")
       .eq("id", id)
       .eq("user_id", user.id)
-      .single() as any);
+      .single();
 
     if (error) {
       console.error(`Error fetching diagnosis with ID ${id}:`, error);

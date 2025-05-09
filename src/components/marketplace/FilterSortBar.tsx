@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Filter, Map, Clock, ArrowUpDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -6,9 +5,27 @@ import { Button } from "@/components/ui/button";
 interface FilterSortBarProps {
   showFilters: boolean;
   onToggleFilters: () => void;
+  onSortChange?: (newSortBy: string, newSortOrder: 'asc' | 'desc') => void;
+  currentSort?: string;
+  currentOrder?: 'asc' | 'desc';
 }
 
-const FilterSortBar = ({ showFilters, onToggleFilters }: FilterSortBarProps) => {
+const FilterSortBar = ({ 
+  showFilters, 
+  onToggleFilters, 
+  onSortChange, 
+  currentSort = 'created_at', 
+  currentOrder = 'desc' 
+}: FilterSortBarProps) => {
+  
+  const handleSortClick = () => {
+    if (onSortChange) {
+      // Toggle sort order when clicked, or keep the same sort field
+      const newOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+      onSortChange(currentSort, newOrder);
+    }
+  };
+  
   return (
     <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
       <div className="flex items-center space-x-2">
@@ -42,9 +59,10 @@ const FilterSortBar = ({ showFilters, onToggleFilters }: FilterSortBarProps) => 
           size="sm" 
           className="flex items-center space-x-1"
           aria-label="Sort products"
+          onClick={handleSortClick}
         >
           <ArrowUpDown className="h-4 w-4" aria-hidden="true" />
-          <span>Sort</span>
+          <span>Sort {currentOrder === 'asc' ? '↑' : '↓'}</span>
         </Button>
       </div>
     </div>
