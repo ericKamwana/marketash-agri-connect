@@ -57,6 +57,39 @@ export type Database = {
           },
         ]
       }
+      crop_diagnosis: {
+        Row: {
+          confidence_score: number
+          created_at: string
+          crop_type: string
+          diagnosis: string
+          id: string
+          image_url: string
+          recommendation: string | null
+          user_id: string
+        }
+        Insert: {
+          confidence_score: number
+          created_at?: string
+          crop_type: string
+          diagnosis: string
+          id?: string
+          image_url: string
+          recommendation?: string | null
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number
+          created_at?: string
+          crop_type?: string
+          diagnosis?: string
+          id?: string
+          image_url?: string
+          recommendation?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       Feedback: {
         Row: {
           created_at: string

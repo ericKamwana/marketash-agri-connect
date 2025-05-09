@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSupabase } from "./supabase-provider";
@@ -11,7 +12,7 @@ export interface Notification {
   type: string;
   read: boolean;
   data: any;
-  reference_id?: string;
+  reference_id: string | null;
   created_at: string;
 }
 

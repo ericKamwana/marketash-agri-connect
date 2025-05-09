@@ -10,7 +10,7 @@ export interface CropDiagnosis {
   crop_type: string;
   diagnosis: string;
   confidence_score: number;
-  recommendation: string;
+  recommendation: string | null;
   created_at: string;
 }
 
