@@ -1,134 +1,126 @@
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Filter } from 'lucide-react';
-
-interface Category {
-  name: string;
-  count: number;
-}
-
-interface Location {
-  name: string;
-  count: number;
-}
+import { Check } from 'lucide-react';
 
 interface MarketplaceFiltersProps {
-  categories: Category[];
-  locations: Location[];
+  categories: Array<{ id: string; name: string }>;
+  locations: Array<{ id: string; name: string }>;
+  selectedCategory: string;
+  selectedLocation: string;
   onApplyFilters: (filters: { category: string; location: string }) => void;
   onResetFilters: () => void;
-  selectedCategory?: string;
-  selectedLocation?: string;
 }
 
-const MarketplaceFilters = ({ 
-  categories, 
+const MarketplaceFilters = ({
+  categories,
   locations,
+  selectedCategory,
+  selectedLocation,
   onApplyFilters,
-  onResetFilters,
-  selectedCategory = '',
-  selectedLocation = ''
+  onResetFilters
 }: MarketplaceFiltersProps) => {
-  const [category, setCategory] = useState(selectedCategory);
-  const [location, setLocation] = useState(selectedLocation);
+  const [localCategory, setLocalCategory] = useState(selectedCategory);
+  const [localLocation, setLocalLocation] = useState(selectedLocation);
 
   const handleApply = () => {
-    onApplyFilters({ category, location });
+    onApplyFilters({
+      category: localCategory,
+      location: localLocation
+    });
+  };
+
+  const handleReset = () => {
+    setLocalCategory('');
+    setLocalLocation('');
+    onResetFilters();
   };
 
   return (
-    <div className="col-span-1 bg-white p-5 rounded-lg shadow-sm">
+    <div 
+      id="filters-panel"
+      className="bg-white p-5 rounded-lg shadow-sm"
+    >
       <h3 className="font-semibold text-lg mb-4">Filter Products</h3>
       
-      <div className="space-y-5">
-        {/* Price Range */}
-        <div>
-          <h4 className="font-medium text-sm mb-2">Price Range (USD)</h4>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label htmlFor="min-price" className="sr-only">Minimum Price</label>
-              <input
-                type="number"
-                id="min-price"
-                placeholder="Min"
-                className="w-full p-2 border border-gray-300 rounded text-sm"
-              />
-            </div>
-            <div>
-              <label htmlFor="max-price" className="sr-only">Maximum Price</label>
-              <input
-                type="number"
-                id="max-price"
-                placeholder="Max"
-                className="w-full p-2 border border-gray-300 rounded text-sm"
-              />
-            </div>
-          </div>
-        </div>
-        
-        {/* Categories */}
-        <div>
-          <h4 className="font-medium text-sm mb-2">Categories</h4>
-          <div className="space-y-2">
-            {categories.map((cat, index) => (
-              <div key={index} className="flex items-center">
-                <input
-                  type="checkbox"
-                  id={`category-${index}`}
-                  className="h-4 w-4 text-marketash-blue focus:ring-marketash-blue"
-                  checked={category === cat.name}
-                  onChange={() => setCategory(category === cat.name ? '' : cat.name)}
-                />
-                <label htmlFor={`category-${index}`} className="ml-2 text-sm text-gray-700 flex-1">
-                  {cat.name}
-                </label>
-                <span className="text-xs text-gray-500">{cat.count}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        {/* Locations */}
-        <div>
-          <h4 className="font-medium text-sm mb-2">Locations</h4>
-          <div className="space-y-2">
-            {locations.map((loc, index) => (
-              <div key={index} className="flex items-center">
-                <input
-                  type="checkbox"
-                  id={`location-${index}`}
-                  className="h-4 w-4 text-marketash-blue focus:ring-marketash-blue"
-                  checked={location === loc.name}
-                  onChange={() => setLocation(location === loc.name ? '' : loc.name)}
-                />
-                <label htmlFor={`location-${index}`} className="ml-2 text-sm text-gray-700 flex-1">
-                  {loc.name}
-                </label>
-                <span className="text-xs text-gray-500">{loc.count}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        {/* Apply/Reset Buttons */}
-        <div className="pt-2 flex space-x-3">
-          <Button 
-            variant="outline" 
-            className="flex-1 text-sm"
-            onClick={onResetFilters}
-            aria-label="Reset all filters"
+      {/* Categories */}
+      <div className="mb-6">
+        <h4 className="font-medium text-sm text-gray-600 mb-3">Categories</h4>
+        <div className="space-y-2">
+          <div 
+            className={`
+              cursor-pointer rounded-md py-1 px-2 flex justify-between items-center
+              ${localCategory === '' ? 'bg-marketash-lightBlue text-marketash-blue' : 'hover:bg-gray-50'}
+            `}
+            onClick={() => setLocalCategory('')}
           >
-            Reset
-          </Button>
-          <Button 
-            className="flex-1 text-sm bg-marketash-blue hover:bg-marketash-blue/90 text-white"
-            onClick={handleApply}
-            aria-label="Apply selected filters"
-          >
-            Apply Filters
-          </Button>
+            <span>All Categories</span>
+            {localCategory === '' && <Check className="h-4 w-4" />}
+          </div>
+          
+          {categories.map(category => (
+            <div 
+              key={category.id}
+              className={`
+                cursor-pointer rounded-md py-1 px-2 flex justify-between items-center
+                ${localCategory === category.id ? 'bg-marketash-lightBlue text-marketash-blue' : 'hover:bg-gray-50'}
+              `}
+              onClick={() => setLocalCategory(category.id)}
+            >
+              <span>{category.name}</span>
+              {localCategory === category.id && <Check className="h-4 w-4" />}
+            </div>
+          ))}
         </div>
+      </div>
+      
+      {/* Locations */}
+      <div className="mb-6">
+        <h4 className="font-medium text-sm text-gray-600 mb-3">Location</h4>
+        <div className="space-y-2">
+          <div 
+            className={`
+              cursor-pointer rounded-md py-1 px-2 flex justify-between items-center
+              ${localLocation === '' ? 'bg-marketash-lightBlue text-marketash-blue' : 'hover:bg-gray-50'}
+            `}
+            onClick={() => setLocalLocation('')}
+          >
+            <span>All Locations</span>
+            {localLocation === '' && <Check className="h-4 w-4" />}
+          </div>
+          
+          {locations.map(location => (
+            <div 
+              key={location.id}
+              className={`
+                cursor-pointer rounded-md py-1 px-2 flex justify-between items-center
+                ${localLocation === location.id ? 'bg-marketash-lightBlue text-marketash-blue' : 'hover:bg-gray-50'}
+              `}
+              onClick={() => setLocalLocation(location.id)}
+            >
+              <span>{location.name}</span>
+              {localLocation === location.id && <Check className="h-4 w-4" />}
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Apply & Reset Buttons */}
+      <div className="flex space-x-2">
+        <Button 
+          variant="default" 
+          className="flex-1"
+          onClick={handleApply}
+        >
+          Apply Filters
+        </Button>
+        <Button 
+          variant="outline" 
+          className="flex-1"
+          onClick={handleReset}
+        >
+          Reset
+        </Button>
       </div>
     </div>
   );
