@@ -7,10 +7,10 @@ export interface Loan {
   id: string;
   user_id: string;
   amount: number;
+  purpose: string;
   interest_rate: number;
   term_months: number;
-  status: "pending" | "approved" | "rejected" | "active" | "paid" | "defaulted";
-  purpose: string;
+  status: string;
   collateral?: string;
   approval_score?: number;
   approved_at?: string;
@@ -23,7 +23,7 @@ export interface LoanPayment {
   loan_id: string;
   amount: number;
   payment_date: string;
-  status: "pending" | "completed" | "failed";
+  status: string;
   payment_method?: string;
   payment_id?: string;
   created_at: string;
@@ -34,30 +34,36 @@ export function useLoans() {
   const queryClient = useQueryClient();
 
   // Apply for a loan
-  const applyForLoan = async (loanData: {
+  const applyForLoan = async ({
+    amount,
+    purpose,
+    interestRate,
+    termMonths,
+    collateral,
+  }: {
     amount: number;
-    term_months: number;
     purpose: string;
+    interestRate: number;
+    termMonths: number;
     collateral?: string;
   }) => {
     if (!user) {
       throw new Error("You must be logged in to apply for a loan");
     }
 
-    // Calculate interest rate based on amount and term
-    // This is a simplified example; real-world rates would be more complex
-    const interestRate = loanData.amount > 5000 ? 8.5 : 10.5;
-
-    const { data, error } = await supabase
-      .from("loans")
+    // Use type assertion to work around TypeScript errors
+    const { data, error } = await (supabase
+      .from("loans" as any)
       .insert({
-        ...loanData,
         user_id: user.id,
+        amount,
+        purpose,
         interest_rate: interestRate,
-        status: "pending" // The database trigger will auto-approve if credit score is high enough
-      })
+        term_months: termMonths,
+        collateral,
+      } as any)
       .select()
-      .single();
+      .single() as any);
 
     if (error) {
       console.error("Error applying for loan:", error);
@@ -67,31 +73,16 @@ export function useLoans() {
     return data as Loan;
   };
 
-  // Use the applyForLoan function with react-query
-  const useApplyForLoanMutation = () => {
-    return useMutation({
-      mutationFn: applyForLoan,
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: ["loans"],
-        });
-        toast.success("Loan application submitted successfully!");
-      },
-      onError: (error) => {
-        toast.error(`Loan application failed: ${error.message}`);
-      },
-    });
-  };
-
-  // Fetch user's loans
+  // Fetch user's loan applications
   const fetchUserLoans = async () => {
     if (!user) return [];
 
-    const { data, error } = await supabase
-      .from("loans")
+    // Use type assertion to work around TypeScript errors
+    const { data, error } = await (supabase
+      .from("loans" as any)
       .select("*")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false }) as any);
 
     if (error) {
       console.error("Error fetching loans:", error);
@@ -101,25 +92,17 @@ export function useLoans() {
     return data as Loan[];
   };
 
-  // Use the fetchUserLoans function with react-query
-  const useUserLoansQuery = () => {
-    return useQuery({
-      queryKey: ["loans"],
-      queryFn: fetchUserLoans,
-      enabled: !!user,
-    });
-  };
-
   // Fetch a single loan by ID
   const fetchLoanById = async (id: string) => {
     if (!user) return null;
 
-    const { data, error } = await supabase
-      .from("loans")
+    // Use type assertion to work around TypeScript errors
+    const { data, error } = await (supabase
+      .from("loans" as any)
       .select("*")
       .eq("id", id)
       .eq("user_id", user.id)
-      .single();
+      .single() as any);
 
     if (error) {
       console.error(`Error fetching loan with ID ${id}:`, error);
@@ -129,24 +112,16 @@ export function useLoans() {
     return data as Loan;
   };
 
-  // Use the fetchLoanById function with react-query
-  const useLoanQuery = (id: string) => {
-    return useQuery({
-      queryKey: ["loans", id],
-      queryFn: () => fetchLoanById(id),
-      enabled: !!id && !!user,
-    });
-  };
-
   // Fetch loan payments for a specific loan
   const fetchLoanPayments = async (loanId: string) => {
     if (!user) return [];
 
-    const { data, error } = await supabase
-      .from("loan_payments")
+    // Use type assertion to work around TypeScript errors
+    const { data, error } = await (supabase
+      .from("loan_payments" as any)
       .select("*")
       .eq("loan_id", loanId)
-      .order("payment_date", { ascending: true });
+      .order("payment_date", { ascending: false }) as any);
 
     if (error) {
       console.error(`Error fetching payments for loan ${loanId}:`, error);
@@ -156,101 +131,44 @@ export function useLoans() {
     return data as LoanPayment[];
   };
 
-  // Use the fetchLoanPayments function with react-query
-  const useLoanPaymentsQuery = (loanId: string) => {
-    return useQuery({
-      queryKey: ["loans", loanId, "payments"],
-      queryFn: () => fetchLoanPayments(loanId),
-      enabled: !!loanId && !!user,
+  // Use react-query for loan application
+  const useApplyForLoanMutation = () => {
+    return useMutation({
+      mutationFn: applyForLoan,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["loans"] });
+        toast.success("Loan application submitted successfully!");
+      },
+      onError: (error: Error) => {
+        toast.error(`Loan application failed: ${error.message}`);
+      },
     });
   };
 
-  // Make a loan payment
-  const makeLoanPayment = async ({
-    loanId,
-    amount,
-    paymentMethod
-  }: {
-    loanId: string;
-    amount: number;
-    paymentMethod: string;
-  }) => {
-    if (!user) {
-      throw new Error("You must be logged in to make a loan payment");
-    }
-
-    // In a real app, this would integrate with a payment processor
-    // This is a simplified mock implementation
-    const paymentId = `pay_${Date.now()}`;
-    
-    const { data, error } = await supabase
-      .from("loan_payments")
-      .insert({
-        loan_id: loanId,
-        amount: amount,
-        payment_date: new Date().toISOString(),
-        status: "completed", // Mock successful payment
-        payment_method: paymentMethod,
-        payment_id: paymentId
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Error making loan payment:", error);
-      throw new Error(error.message);
-    }
-
-    // Check if the loan is fully paid
-    const { data: loanData } = await supabase
-      .from("loans")
-      .select("*")
-      .eq("id", loanId)
-      .single();
-
-    const { data: paymentsData } = await supabase
-      .from("loan_payments")
-      .select("amount")
-      .eq("loan_id", loanId)
-      .eq("status", "completed");
-
-    const totalPaid = paymentsData.reduce(
-      (sum: number, payment: { amount: number }) => sum + payment.amount,
-      0
-    );
-
-    const loanTotal = loanData.amount * (1 + loanData.interest_rate / 100);
-
-    // If loan is fully paid, update its status
-    if (totalPaid >= loanTotal) {
-      await supabase
-        .from("loans")
-        .update({ status: "paid" })
-        .eq("id", loanId);
-
-      // Increase user's credit score for fully paying off a loan
-      await supabase.rpc("increase_credit_score", { user_id: user.id, points: 15 });
-    }
-
-    return data as LoanPayment;
+  // Use react-query for fetching user's loans
+  const useUserLoansQuery = () => {
+    return useQuery({
+      queryKey: ["loans"],
+      queryFn: fetchUserLoans,
+      enabled: !!user,
+    });
   };
 
-  // Use the makeLoanPayment function with react-query
-  const useMakeLoanPaymentMutation = () => {
-    return useMutation({
-      mutationFn: makeLoanPayment,
-      onSuccess: (_, variables) => {
-        queryClient.invalidateQueries({
-          queryKey: ["loans", variables.loanId, "payments"],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["loans"],
-        });
-        toast.success("Payment successful!");
-      },
-      onError: (error) => {
-        toast.error(`Payment failed: ${error.message}`);
-      },
+  // Use react-query for fetching a single loan
+  const useLoanQuery = (id: string) => {
+    return useQuery({
+      queryKey: ["loans", id],
+      queryFn: () => fetchLoanById(id),
+      enabled: !!id && !!user,
+    });
+  };
+
+  // Use react-query for fetching loan payments
+  const useLoanPaymentsQuery = (loanId: string) => {
+    return useQuery({
+      queryKey: ["loan-payments", loanId],
+      queryFn: () => fetchLoanPayments(loanId),
+      enabled: !!loanId && !!user,
     });
   };
 
@@ -259,6 +177,5 @@ export function useLoans() {
     useUserLoansQuery,
     useLoanQuery,
     useLoanPaymentsQuery,
-    useMakeLoanPaymentMutation,
   };
 }
