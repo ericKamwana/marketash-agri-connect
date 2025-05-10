@@ -42,11 +42,14 @@ const Dashboard = () => {
       if (!userProfile) return;
       
       try {
-        // Fetch user transactions - convert ID to string for the query
+        // Make sure to convert userProfile.id to a string for all database queries
+        const userId = userProfile.id.toString();
+        
+        // Fetch user transactions - using string ID for the query
         const { data: transactions, error: transactionsError } = await supabase
           .from('transactions')
           .select('*')
-          .or(`buyer_id.eq.${userProfile.id.toString()},seller_id.eq.${userProfile.id.toString()}`);
+          .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
           
         if (transactionsError) throw transactionsError;
         
@@ -56,16 +59,16 @@ const Dashboard = () => {
           const { data: productsData, error: productsError } = await supabase
             .from('products')
             .select('*')
-            .eq('user_id', userProfile.id.toString());
+            .eq('user_id', userId);
             
           if (productsError) throw productsError;
           products = productsData || [];
         }
         
-        // Calculate statistics - make sure to convert ID to string in all comparisons
-        const sales = transactions?.filter(t => t.seller_id === userProfile.id.toString()).length || 0;
-        const orders = transactions?.filter(t => t.buyer_id === userProfile.id.toString()).length || 0;
-        const revenue = transactions?.filter(t => t.seller_id === userProfile.id.toString())
+        // Calculate statistics - using string ID for all comparisons
+        const sales = transactions?.filter(t => t.seller_id === userId).length || 0;
+        const orders = transactions?.filter(t => t.buyer_id === userId).length || 0;
+        const revenue = transactions?.filter(t => t.seller_id === userId)
           .reduce((sum, t) => sum + parseFloat(t.amount), 0) || 0;
         
         setStats({
