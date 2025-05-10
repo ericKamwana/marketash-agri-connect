@@ -51,13 +51,67 @@ export const SupabaseProvider = ({ children }: { children: React.ReactNode }) =>
         .eq('id', userId)
         .single();
         
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching profile:", error);
+        throw error;
+      }
       
       if (data) {
         setUserProfile(data as UserProfile);
+        console.log("Profile data fetched:", data);
+      } else {
+        console.log("No profile found for user ID:", userId);
+        // Create a profile if none exists
+        await createUserProfile(userId);
       }
     } catch (error) {
-      console.error("Error fetching user profile:", error);
+      console.error("Error in fetchUserProfile:", error);
+    }
+  };
+
+  const createUserProfile = async (userId: string) => {
+    try {
+      // Get user metadata to extract name
+      const { data: userData } = await supabase.auth.getUser();
+      
+      if (!userData.user) {
+        throw new Error("User not found");
+      }
+      
+      const userMeta = userData.user.user_metadata;
+      const displayName = userMeta.name || userMeta.full_name || `User-${userId.substring(0, 8)}`;
+      const userType = userMeta.user_type || 'buyer';
+      
+      console.log("Creating profile for:", displayName, "type:", userType);
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert([
+          { 
+            id: userId,
+            display_name: displayName,
+            user_type: userType,
+            avatar_url: null,
+            location: null,
+            credit_score: 500,  // Default starting credit score
+            rating: 0           // Start with zero rating
+          }
+        ])
+        .select()
+        .single();
+        
+      if (error) {
+        console.error("Error creating profile:", error);
+        throw error;
+      }
+      
+      if (data) {
+        setUserProfile(data as UserProfile);
+        console.log("Profile created:", data);
+      }
+      
+    } catch (error) {
+      console.error("Error in createUserProfile:", error);
     }
   };
 

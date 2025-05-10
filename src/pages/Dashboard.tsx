@@ -1,444 +1,292 @@
 
-import { useState } from 'react';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { Coins, Search, Package, Truck, User, Calendar, ArrowRight, ArrowUpRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useSupabase } from '@/lib/supabase/supabase-provider';
+import { CardTitle, CardDescription, CardHeader, CardContent, CardFooter, Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { 
+  BarChart, 
+  Activity, 
+  ShoppingBag, 
+  Truck, 
+  Star, 
+  CreditCard,
+  User,
+  MapPin,
+  Package
+} from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
-// Mock data for dashboard
-const salesData = [
-  { name: 'Jan', value: 400 },
-  { name: 'Feb', value: 300 },
-  { name: 'Mar', value: 600 },
-  { name: 'Apr', value: 800 },
-  { name: 'May', value: 500 },
-  { name: 'Jun', value: 1200 },
-];
-
-const pendingBids = [
-  {
-    id: '1',
-    product: 'Organic Tomatoes',
-    quantity: '200 kg',
-    bidAmount: '$2.80/kg',
-    bidder: 'Green Grocers Ltd',
-    timeLeft: '8 hours',
-  },
-  {
-    id: '2',
-    product: 'Red Onions',
-    quantity: '150 kg',
-    bidAmount: '$1.95/kg',
-    bidder: 'Fresh Market',
-    timeLeft: '3 hours',
-  },
-  {
-    id: '3',
-    product: 'Sweet Corn',
-    quantity: '300 kg',
-    bidAmount: '$1.70/kg',
-    bidder: 'Urban Foods',
-    timeLeft: '12 hours',
-  },
-];
-
-const recentTransactions = [
-  {
-    id: '1',
-    product: 'Premium Cassava',
-    amount: '$1,440.00',
-    buyer: 'Food Processing Co.',
-    status: 'Completed',
-    date: 'May 2, 2025',
-  },
-  {
-    id: '2',
-    product: 'Green Peppers',
-    amount: '$900.00',
-    buyer: 'City Supermarket',
-    status: 'In Transit',
-    date: 'May 1, 2025',
-  },
-  {
-    id: '3',
-    product: 'Green Bananas',
-    amount: '$1,200.00',
-    buyer: 'Fresh Exports Ltd',
-    status: 'Processing',
-    date: 'Apr 29, 2025',
-  },
-];
+type UserStats = {
+  totalSales: number;
+  totalOrders: number;
+  totalRevenue: number;
+  averageRating: number;
+};
 
 const Dashboard = () => {
+  const { userProfile, loading } = useSupabase();
+  const [stats, setStats] = useState<UserStats>({
+    totalSales: 0,
+    totalOrders: 0,
+    totalRevenue: 0,
+    averageRating: 0,
+  });
+  const [userProducts, setUserProducts] = useState<any[]>([]);
+  const [userTransactions, setUserTransactions] = useState<any[]>([]);
   const { toast } = useToast();
-  const [selectedRole, setSelectedRole] = useState('farmer');
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!userProfile) return;
+      
+      try {
+        // Fetch user transactions
+        const { data: transactions, error: transactionsError } = await useSupabase.supabase
+          .from('transactions')
+          .select('*')
+          .or(`buyer_id.eq.${userProfile.id},seller_id.eq.${userProfile.id}`);
+          
+        if (transactionsError) throw transactionsError;
+        
+        // Fetch user products if they are a farmer
+        let products = [];
+        if (userProfile.user_type === 'farmer') {
+          const { data: productsData, error: productsError } = await useSupabase.supabase
+            .from('products')
+            .select('*')
+            .eq('user_id', userProfile.id);
+            
+          if (productsError) throw productsError;
+          products = productsData || [];
+        }
+        
+        // Calculate statistics
+        const sales = transactions?.filter(t => t.seller_id === userProfile.id).length || 0;
+        const orders = transactions?.filter(t => t.buyer_id === userProfile.id).length || 0;
+        const revenue = transactions?.filter(t => t.seller_id === userProfile.id)
+          .reduce((sum, t) => sum + parseFloat(t.amount), 0) || 0;
+        
+        setStats({
+          totalSales: sales,
+          totalOrders: orders,
+          totalRevenue: revenue,
+          averageRating: userProfile.rating || 0,
+        });
+        
+        setUserProducts(products || []);
+        setUserTransactions(transactions || []);
+        
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        toast({
+          variant: "destructive",
+          title: "Failed to load dashboard",
+          description: "We couldn't load your data. Please try again later.",
+        });
+      }
+    };
+    
+    if (userProfile) {
+      fetchUserData();
+    }
+  }, [userProfile, toast]);
   
-  const handleRoleChange = (role: string) => {
-    setSelectedRole(role);
-    toast({
-      title: `Switched to ${role} dashboard`,
-    });
-  };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-marketash-blue"></div>
+      </div>
+    );
+  }
+  
+  if (!userProfile) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Card className="w-full max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle>Authentication Required</CardTitle>
+            <CardDescription>Please sign in to view your dashboard</CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Button asChild className="w-full">
+              <a href="/auth">Sign In</a>
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
   
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">My Dashboard</h1>
       
-      <main className="flex-grow bg-marketash-gray py-8">
-        <div className="container mx-auto px-4">
-          {/* Role Switcher (For demo purposes) */}
-          <div className="flex justify-end mb-6">
-            <div className="bg-white rounded-md shadow-sm p-1 inline-flex">
-              <button
-                onClick={() => handleRoleChange('farmer')}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                  selectedRole === 'farmer' 
-                    ? 'bg-marketash-blue text-white' 
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                Farmer View
-              </button>
-              <button
-                onClick={() => handleRoleChange('buyer')}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                  selectedRole === 'buyer' 
-                    ? 'bg-marketash-green text-white' 
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                Buyer View
-              </button>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <Card className="col-span-1 md:col-span-3">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-2xl">Welcome, {userProfile.display_name || 'User'}</CardTitle>
+              <CardDescription>
+                Account Type: {userProfile.user_type === 'farmer' ? 'Farmer/Seller' : 'Buyer'}
+              </CardDescription>
             </div>
-          </div>
-          
-          {/* Dashboard Header */}
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-            <div className="flex flex-col md:flex-row justify-between">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-marketash-blue">
-                  Welcome, {selectedRole === 'farmer' ? 'Sarah Mwangi' : 'Green Grocers Ltd'}
-                </h1>
-                <p className="text-gray-600">
-                  {selectedRole === 'farmer' 
-                    ? 'Manage your farm listings, bids, and transactions' 
-                    : 'Browse listings, place bids, and manage your orders'}
-                </p>
-              </div>
-              
-              {selectedRole === 'farmer' && (
-                <div className="mt-4 md:mt-0 flex items-center">
-                  <div className="bg-marketash-lightGreen px-4 py-2 rounded-md">
-                    <p className="text-sm text-gray-600">Credit Score</p>
-                    <div className="flex items-center">
-                      <span className="text-xl font-bold text-marketash-green">780</span>
-                      <span className="ml-2 text-xs bg-marketash-green text-white px-1 py-0.5 rounded flex items-center">
-                        <ArrowUpRight className="h-3 w-3 mr-0.5" />
-                        +15
-                      </span>
-                    </div>
-                  </div>
-                  <div className="ml-6">
-                    <Button 
-                      className="bg-marketash-blue hover:bg-marketash-blue/90 text-white"
-                    >
-                      Apply for Microloan
-                    </Button>
-                  </div>
-                </div>
-              )}
-              
-              {selectedRole === 'buyer' && (
-                <div className="mt-4 md:mt-0 flex items-center">
-                  <div className="bg-marketash-lightBlue px-4 py-2 rounded-md">
-                    <p className="text-sm text-gray-600">Active Bids</p>
-                    <p className="text-xl font-bold text-marketash-blue">8</p>
-                  </div>
-                  <div className="ml-6">
-                    <Button 
-                      className="bg-marketash-blue hover:bg-marketash-blue/90 text-white"
-                    >
-                      Browse Marketplace
-                    </Button>
-                  </div>
-                </div>
-              )}
+            <Avatar className="h-16 w-16">
+              <AvatarImage src={userProfile.avatar_url || ''} />
+              <AvatarFallback className="bg-marketash-blue text-white text-lg">
+                {userProfile.display_name ? userProfile.display_name.charAt(0).toUpperCase() : 'U'}
+              </AvatarFallback>
+            </Avatar>
+          </CardHeader>
+          <CardContent className="flex flex-col md:flex-row gap-4">
+            <div className="flex items-center gap-2">
+              <User className="h-5 w-5 text-marketash-blue" />
+              <span className="text-gray-500">Profile: {userProfile.display_name || 'Not set'}</span>
             </div>
-          </div>
-          
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-center">
-                <div className="bg-marketash-lightBlue p-3 rounded-md">
-                  <Package className="h-6 w-6 text-marketash-blue" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm text-gray-600">Active Listings</p>
-                  <p className="text-2xl font-bold">{selectedRole === 'farmer' ? '6' : '—'}</p>
-                </div>
-              </div>
+            <div className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-marketash-green" />
+              <span className="text-gray-500">Location: {userProfile.location || 'Not set'}</span>
             </div>
-            
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-center">
-                <div className="bg-marketash-lightGreen p-3 rounded-md">
-                  <Coins className="h-6 w-6 text-marketash-green" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm text-gray-600">Total Revenue</p>
-                  <p className="text-2xl font-bold">${selectedRole === 'farmer' ? '5,840' : '7,290'}</p>
-                </div>
-              </div>
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-amber-500" />
+              <span className="text-gray-500">Credit Score: {userProfile.credit_score || 0}</span>
             </div>
-            
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-center">
-                <div className="bg-marketash-lightBlue p-3 rounded-md">
-                  <Truck className="h-6 w-6 text-marketash-blue" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm text-gray-600">Pending Delivery</p>
-                  <p className="text-2xl font-bold">{selectedRole === 'farmer' ? '3' : '2'}</p>
-                </div>
-              </div>
+            <div className="flex items-center gap-2">
+              <Star className="h-5 w-5 text-yellow-500" />
+              <span className="text-gray-500">Rating: {userProfile.rating || 0}/5</span>
             </div>
-            
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-center">
-                <div className="bg-marketash-lightGreen p-3 rounded-md">
-                  <User className="h-6 w-6 text-marketash-green" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm text-gray-600">{selectedRole === 'farmer' ? 'Regular Buyers' : 'Trusted Farmers'}</p>
-                  <p className="text-2xl font-bold">{selectedRole === 'farmer' ? '12' : '8'}</p>
-                </div>
-              </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
+            <ShoppingBag className="h-4 w-4 text-marketash-blue" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalSales}</div>
+            <p className="text-xs text-muted-foreground">Products sold</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+            <Package className="h-4 w-4 text-marketash-green" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalOrders}</div>
+            <p className="text-xs text-muted-foreground">Products purchased</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Revenue</CardTitle>
+            <Activity className="h-4 w-4 text-emerald-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">KSh {stats.totalRevenue.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">Total earnings</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {userProfile.user_type === 'farmer' && (
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">My Products</h2>
+          {userProducts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {userProducts.map((product) => (
+                <Card key={product.id}>
+                  <CardHeader>
+                    <CardTitle>{product.title}</CardTitle>
+                    <CardDescription>
+                      Status: <span className={`font-medium ${
+                        product.status === 'available' ? 'text-green-500' : 
+                        product.status === 'sold' ? 'text-red-500' : 'text-amber-500'
+                      }`}>{product.status}</span>
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-lg font-bold">KSh {parseFloat(product.base_price).toLocaleString()}</p>
+                    <p className="text-sm text-gray-500">{product.quantity} {product.unit} available</p>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-          </div>
-          
-          {/* Main Content: Charts, Tables, etc. */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Chart Section */}
-            <div className="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-semibold">
-                  {selectedRole === 'farmer' ? 'Monthly Sales Performance' : 'Monthly Purchase History'}
-                </h2>
-                <div className="flex items-center">
-                  <Button variant="ghost" className="text-marketash-blue text-sm">
-                    Export
+          ) : (
+            <Card>
+              <CardContent className="py-6">
+                <p className="text-center text-gray-500">You haven't listed any products yet.</p>
+                <div className="flex justify-center mt-4">
+                  <Button asChild>
+                    <a href="/marketplace">Add Product</a>
                   </Button>
                 </div>
-              </div>
-              
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={salesData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar 
-                      dataKey="value" 
-                      name={selectedRole === 'farmer' ? 'Sales (USD)' : 'Purchases (USD)'} 
-                      fill={selectedRole === 'farmer' ? '#0B5394' : '#4CAF50'} 
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-            
-            {/* Calendar/Upcoming Section */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-semibold">Upcoming Events</h2>
-                <Button variant="ghost" className="text-sm text-gray-600">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  View Calendar
-                </Button>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="flex items-start p-3 bg-marketash-lightBlue rounded-md">
-                  <div className="flex flex-col items-center mr-4">
-                    <span className="text-xs font-medium text-marketash-blue">MAY</span>
-                    <span className="text-xl font-bold text-marketash-blue">06</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium">Tomato Harvest Due</h4>
-                    <p className="text-sm text-gray-600">Estimated yield: 500kg</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start p-3 bg-marketash-lightGreen rounded-md">
-                  <div className="flex flex-col items-center mr-4">
-                    <span className="text-xs font-medium text-marketash-green">MAY</span>
-                    <span className="text-xl font-bold text-marketash-green">10</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium">Microloan Payment</h4>
-                    <p className="text-sm text-gray-600">$250 installment due</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start p-3 bg-gray-100 rounded-md">
-                  <div className="flex flex-col items-center mr-4">
-                    <span className="text-xs font-medium text-gray-500">MAY</span>
-                    <span className="text-xl font-bold text-gray-500">15</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium">Agricultural Workshop</h4>
-                    <p className="text-sm text-gray-600">Sustainable farming practices</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-6">
-                <Button variant="outline" className="w-full">
-                  <ArrowRight className="h-4 w-4 mr-2" />
-                  View All Events
-                </Button>
-              </div>
-            </div>
-          </div>
-          
-          {/* Tables Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-            {/* Pending Bids */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-semibold">
-                  {selectedRole === 'farmer' ? 'Pending Bids on Your Produce' : 'Your Active Bids'}
-                </h2>
-                <div className="relative">
-                  <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input 
-                    type="text" 
-                    placeholder="Search..." 
-                    className="pl-9 py-1 pr-3 text-sm border border-gray-200 rounded-md"
-                  />
-                </div>
-              </div>
-              
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead>
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Product
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Quantity
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Bid Amount
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        {selectedRole === 'farmer' ? 'Bidder' : 'Farmer'}
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Time Left
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {pendingBids.map((bid) => (
-                      <tr key={bid.id}>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <div className="font-medium">{bid.product}</div>
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          {bid.quantity}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-marketash-blue font-medium">
-                          {bid.bidAmount}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          {bid.bidder}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">
-                            {bid.timeLeft}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            
-            {/* Recent Transactions */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-semibold">Recent Transactions</h2>
-                <Button variant="ghost" className="text-sm text-marketash-blue">
-                  View All
-                </Button>
-              </div>
-              
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead>
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Product
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Amount
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        {selectedRole === 'farmer' ? 'Buyer' : 'Farmer'}
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Date
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {recentTransactions.map((transaction) => (
-                      <tr key={transaction.id}>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <div className="font-medium">{transaction.product}</div>
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap font-medium">
-                          {transaction.amount}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          {transaction.buyer}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span className={`text-xs px-2 py-1 rounded-full ${
-                            transaction.status === 'Completed' 
-                              ? 'bg-green-100 text-green-800' 
-                              : transaction.status === 'In Transit'
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {transaction.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                          {transaction.date}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
-      </main>
+      )}
       
-      <Footer />
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Recent Transactions</h2>
+        {userTransactions.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="px-4 py-2 text-left">Date</th>
+                  <th className="px-4 py-2 text-left">Type</th>
+                  <th className="px-4 py-2 text-left">Product</th>
+                  <th className="px-4 py-2 text-left">Amount</th>
+                  <th className="px-4 py-2 text-left">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {userTransactions.slice(0, 5).map((transaction) => {
+                  const isSeller = transaction.seller_id === userProfile.id;
+                  return (
+                    <tr key={transaction.id} className="border-b border-gray-200">
+                      <td className="px-4 py-2">
+                        {new Date(transaction.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-2">
+                        <span className={isSeller ? "text-green-500" : "text-blue-500"}>
+                          {isSeller ? "Sale" : "Purchase"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2">Product ID: {transaction.product_id.substring(0, 8)}...</td>
+                      <td className="px-4 py-2">KSh {parseFloat(transaction.amount).toLocaleString()}</td>
+                      <td className="px-4 py-2">
+                        <span className={
+                          transaction.status === 'completed' ? 'text-green-500' : 
+                          transaction.status === 'processing' ? 'text-amber-500' : 'text-gray-500'
+                        }>
+                          {transaction.status}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="py-6">
+              <p className="text-center text-gray-500">You don't have any transactions yet.</p>
+              <div className="flex justify-center mt-4">
+                <Button asChild>
+                  <a href="/marketplace">Start Shopping</a>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 };
