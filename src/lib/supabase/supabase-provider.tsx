@@ -67,7 +67,10 @@ export const SupabaseProvider = ({ children }: { children: React.ReactNode }) =>
       if (error) throw error;
       
       if (data.user) {
-        await fetchUserProfile(data.user.id);
+        // Use setTimeout to prevent potential Supabase deadlock
+        setTimeout(() => {
+          fetchUserProfile(data.user.id);
+        }, 0);
       }
       
       uiToast({
@@ -86,10 +89,16 @@ export const SupabaseProvider = ({ children }: { children: React.ReactNode }) =>
 
   const signUp = async (email: string, password: string, options?: any) => {
     try {
+      // Determine the redirect URL - use the current URL's origin as the base
+      const redirectTo = window.location.origin + '/auth';
+      
       const { error } = await supabase.auth.signUp({ 
         email, 
-        password, 
-        options: options?.options 
+        password,
+        options: {
+          emailRedirectTo: redirectTo,
+          data: options?.data || {}
+        }
       });
       
       if (error) throw error;
@@ -131,6 +140,7 @@ export const SupabaseProvider = ({ children }: { children: React.ReactNode }) =>
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log("Auth state changed:", event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -149,6 +159,7 @@ export const SupabaseProvider = ({ children }: { children: React.ReactNode }) =>
 
     // Initial session check
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Initial session check:", session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       

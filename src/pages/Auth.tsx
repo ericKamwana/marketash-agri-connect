@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ import { AlertCircle } from "lucide-react";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { user, signIn, signUp, loading } = useSupabase();
   const [email, setEmail] = useState("");
@@ -20,12 +21,32 @@ const Auth = () => {
   const [name, setName] = useState("");
   const [userType, setUserType] = useState<"farmer" | "buyer">("buyer");
   const [authError, setAuthError] = useState<string | null>(null);
+  const [defaultTab, setDefaultTab] = useState<"login" | "register">("login");
+  
+  // Check if there's a hash parameter indicating email confirmation
+  useEffect(() => {
+    // Check for URL parameters that might indicate a specific flow
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('action') && params.get('action') === 'signup') {
+      setDefaultTab('register');
+    }
+    
+    // If URL contains a hash, it might be a confirmation token
+    if (location.hash || params.has('type')) {
+      toast({
+        title: "Verifying email...",
+        description: "Please wait while we verify your email.",
+      });
+    }
+  }, [location, toast]);
   
   // If user is already logged in, redirect to homepage
-  if (user) {
-    navigate('/');
-    return null;
-  }
+  useEffect(() => {
+    if (user) {
+      const returnTo = location.state?.from?.pathname || '/';
+      navigate(returnTo);
+    }
+  }, [user, navigate, location]);
   
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,12 +75,6 @@ const Auth = () => {
         data: { 
           name,
           user_type: userType
-        },
-        options: {
-          data: {
-            name,
-            user_type: userType
-          }
         }
       });
       
@@ -72,6 +87,14 @@ const Auth = () => {
     }
   };
   
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-marketash-blue"></div>
+      </div>
+    );
+  }
+  
   return (
     <div className="min-h-screen flex items-center justify-center bg-marketash-gray py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
@@ -80,7 +103,7 @@ const Auth = () => {
           <p className="mt-2 text-gray-600">Join the agricultural marketplace revolution</p>
         </div>
         
-        <Tabs defaultValue="login" className="w-full">
+        <Tabs defaultValue={defaultTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="register">Register</TabsTrigger>
