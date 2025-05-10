@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useSupabase } from '@/lib/supabase/supabase-provider';
 import { CardTitle, CardDescription, CardHeader, CardContent, CardFooter, Card } from '@/components/ui/card';
@@ -26,7 +25,7 @@ type UserStats = {
 };
 
 const Dashboard = () => {
-  const { userProfile, loading } = useSupabase();
+  const { userProfile, loading, supabase } = useSupabase();
   const [stats, setStats] = useState<UserStats>({
     totalSales: 0,
     totalOrders: 0,
@@ -43,7 +42,7 @@ const Dashboard = () => {
       
       try {
         // Fetch user transactions
-        const { data: transactions, error: transactionsError } = await useSupabase.supabase
+        const { data: transactions, error: transactionsError } = await supabase
           .from('transactions')
           .select('*')
           .or(`buyer_id.eq.${userProfile.id},seller_id.eq.${userProfile.id}`);
@@ -53,7 +52,7 @@ const Dashboard = () => {
         // Fetch user products if they are a farmer
         let products = [];
         if (userProfile.user_type === 'farmer') {
-          const { data: productsData, error: productsError } = await useSupabase.supabase
+          const { data: productsData, error: productsError } = await supabase
             .from('products')
             .select('*')
             .eq('user_id', userProfile.id);
@@ -91,7 +90,7 @@ const Dashboard = () => {
     if (userProfile) {
       fetchUserData();
     }
-  }, [userProfile, toast]);
+  }, [userProfile, toast, supabase]);
   
   if (loading) {
     return (
