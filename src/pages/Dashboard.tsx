@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useSupabase } from '@/lib/supabase/supabase-provider';
 import { CardTitle, CardDescription, CardHeader, CardContent, CardFooter, Card } from '@/components/ui/card';
@@ -55,16 +56,16 @@ const Dashboard = () => {
           const { data: productsData, error: productsError } = await supabase
             .from('products')
             .select('*')
-            .eq('user_id', userProfile.id);
+            .eq('user_id', userProfile.id.toString()); // Convert ID to string here as well
             
           if (productsError) throw productsError;
           products = productsData || [];
         }
         
         // Calculate statistics
-        const sales = transactions?.filter(t => t.seller_id === userProfile.id).length || 0;
-        const orders = transactions?.filter(t => t.buyer_id === userProfile.id).length || 0;
-        const revenue = transactions?.filter(t => t.seller_id === userProfile.id)
+        const sales = transactions?.filter(t => t.seller_id === userProfile.id.toString()).length || 0;
+        const orders = transactions?.filter(t => t.buyer_id === userProfile.id.toString()).length || 0;
+        const revenue = transactions?.filter(t => t.seller_id === userProfile.id.toString())
           .reduce((sum, t) => sum + parseFloat(t.amount), 0) || 0;
         
         setStats({
