@@ -56,13 +56,13 @@ const Dashboard = () => {
           const { data: productsData, error: productsError } = await supabase
             .from('products')
             .select('*')
-            .eq('user_id', userProfile.id.toString()); // Convert ID to string here as well
+            .eq('user_id', userProfile.id.toString());
             
           if (productsError) throw productsError;
           products = productsData || [];
         }
         
-        // Calculate statistics
+        // Calculate statistics - make sure to convert ID to string in all comparisons
         const sales = transactions?.filter(t => t.seller_id === userProfile.id.toString()).length || 0;
         const orders = transactions?.filter(t => t.buyer_id === userProfile.id.toString()).length || 0;
         const revenue = transactions?.filter(t => t.seller_id === userProfile.id.toString())
