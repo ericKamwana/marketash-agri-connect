@@ -164,22 +164,22 @@ const products = [
 ];
 
 const categories = [
-  { name: 'Vegetables', count: 124 },
-  { name: 'Fruits', count: 86 },
-  { name: 'Grains', count: 53 },
-  { name: 'Tubers', count: 42 },
-  { name: 'Herbs', count: 21 },
-  { name: 'Nuts', count: 18 }, 
-  { name: 'Stimulants', count: 12 }, 
-  { name: 'Beverages', count: 24 },
+  { id: 'vegetables', name: 'Vegetables', count: 124 },
+  { id: 'fruits', name: 'Fruits', count: 86 },
+  { id: 'grains', name: 'Grains', count: 53 },
+  { id: 'tubers', name: 'Tubers', count: 42 },
+  { id: 'herbs', name: 'Herbs', count: 21 },
+  { id: 'nuts', name: 'Nuts', count: 18 }, 
+  { id: 'stimulants', name: 'Stimulants', count: 12 }, 
+  { id: 'beverages', name: 'Beverages', count: 24 },
 ];
 
 const locations = [
-  { name: 'Kenya', count: 78 },
-  { name: 'Nigeria', count: 65 },
-  { name: 'Ghana', count: 43 },
-  { name: 'Rwanda', count: 31 },
-  { name: 'Tanzania', count: 28 },
+  { id: 'kenya', name: 'Kenya', count: 78 },
+  { id: 'nigeria', name: 'Nigeria', count: 65 },
+  { id: 'ghana', name: 'Ghana', count: 43 },
+  { id: 'rwanda', name: 'Rwanda', count: 31 },
+  { id: 'tanzania', name: 'Tanzania', count: 28 },
 ];
 
 export { products, categories, locations };

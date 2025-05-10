@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Check } from 'lucide-react';
 
 interface MarketplaceFiltersProps {
-  categories: Array<{ id: string; name: string }>;
-  locations: Array<{ id: string; name: string }>;
+  categories: Array<{ id?: string; name: string; count?: number }>;
+  locations: Array<{ id?: string; name: string; count?: number }>;
   selectedCategory: string;
   selectedLocation: string;
   onApplyFilters: (filters: { category: string; location: string }) => void;
@@ -60,15 +60,15 @@ const MarketplaceFilters = ({
           
           {categories.map(category => (
             <div 
-              key={category.id}
+              key={category.id || category.name}
               className={`
                 cursor-pointer rounded-md py-1 px-2 flex justify-between items-center
-                ${localCategory === category.id ? 'bg-marketash-lightBlue text-marketash-blue' : 'hover:bg-gray-50'}
+                ${localCategory === (category.id || category.name) ? 'bg-marketash-lightBlue text-marketash-blue' : 'hover:bg-gray-50'}
               `}
-              onClick={() => setLocalCategory(category.id)}
+              onClick={() => setLocalCategory(category.id || category.name)}
             >
               <span>{category.name}</span>
-              {localCategory === category.id && <Check className="h-4 w-4" />}
+              {localCategory === (category.id || category.name) && <Check className="h-4 w-4" />}
             </div>
           ))}
         </div>
@@ -91,15 +91,15 @@ const MarketplaceFilters = ({
           
           {locations.map(location => (
             <div 
-              key={location.id}
+              key={location.id || location.name}
               className={`
                 cursor-pointer rounded-md py-1 px-2 flex justify-between items-center
-                ${localLocation === location.id ? 'bg-marketash-lightBlue text-marketash-blue' : 'hover:bg-gray-50'}
+                ${localLocation === (location.id || location.name) ? 'bg-marketash-lightBlue text-marketash-blue' : 'hover:bg-gray-50'}
               `}
-              onClick={() => setLocalLocation(location.id)}
+              onClick={() => setLocalLocation(location.id || location.name)}
             >
               <span>{location.name}</span>
-              {localLocation === location.id && <Check className="h-4 w-4" />}
+              {localLocation === (location.id || location.name) && <Check className="h-4 w-4" />}
             </div>
           ))}
         </div>
