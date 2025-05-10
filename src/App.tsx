@@ -27,12 +27,13 @@ const queryClient = new QueryClient({
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useSupabase();
   const navigate = useNavigate();
+  const location = useLocation();
   
   useEffect(() => {
     if (!loading && !user) {
-      navigate("/auth", { replace: true });
+      navigate("/auth", { replace: true, state: { from: location } });
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, location]);
   
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">
@@ -67,7 +68,6 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <AuthRedirectHandler />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/marketplace" element={<Marketplace />} />
@@ -85,6 +85,7 @@ const App = () => (
             } />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <AuthRedirectHandler />
         </BrowserRouter>
       </TooltipProvider>
     </SupabaseProvider>
