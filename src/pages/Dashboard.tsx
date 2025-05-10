@@ -41,11 +41,11 @@ const Dashboard = () => {
       if (!userProfile) return;
       
       try {
-        // Fetch user transactions
+        // Fetch user transactions - convert ID to string for the query
         const { data: transactions, error: transactionsError } = await supabase
           .from('transactions')
           .select('*')
-          .or(`buyer_id.eq.${userProfile.id},seller_id.eq.${userProfile.id}`);
+          .or(`buyer_id.eq.${userProfile.id.toString()},seller_id.eq.${userProfile.id.toString()}`);
           
         if (transactionsError) throw transactionsError;
         
