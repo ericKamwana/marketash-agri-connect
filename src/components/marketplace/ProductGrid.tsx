@@ -18,6 +18,7 @@ interface ProductGridProps {
       name: string;
       image: string;
       rating: number;
+      id?: string;
     };
   }>;
   isLoading: boolean;
@@ -54,6 +55,11 @@ const ProductGrid = ({ products, isLoading, showFilters, clearSearch }: ProductG
       }
     };
   }, [isLoading, products.length, visibleItems]);
+  
+  // Reset visible items when products change
+  useEffect(() => {
+    setVisibleItems(6);
+  }, [products]);
   
   const visibleProducts = products.slice(0, visibleItems);
   

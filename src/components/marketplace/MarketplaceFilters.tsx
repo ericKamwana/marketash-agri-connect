@@ -67,8 +67,11 @@ const MarketplaceFilters = ({
               `}
               onClick={() => setLocalCategory(category.id || category.name)}
             >
-              <span>{category.name}</span>
-              {localCategory === (category.id || category.name) && <Check className="h-4 w-4" />}
+              <div className="flex justify-between w-full">
+                <span>{category.name}</span>
+                {category.count !== undefined && <span className="text-gray-400 text-sm">{category.count}</span>}
+              </div>
+              {localCategory === (category.id || category.name) && <Check className="h-4 w-4 ml-2" />}
             </div>
           ))}
         </div>
@@ -98,8 +101,11 @@ const MarketplaceFilters = ({
               `}
               onClick={() => setLocalLocation(location.id || location.name)}
             >
-              <span>{location.name}</span>
-              {localLocation === (location.id || location.name) && <Check className="h-4 w-4" />}
+              <div className="flex justify-between w-full">
+                <span>{location.name}</span>
+                {location.count !== undefined && <span className="text-gray-400 text-sm">{location.count}</span>}
+              </div>
+              {localLocation === (location.id || location.name) && <Check className="h-4 w-4 ml-2" />}
             </div>
           ))}
         </div>
