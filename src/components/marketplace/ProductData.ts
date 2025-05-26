@@ -131,7 +131,7 @@ const products = [
   },
   {
     id: '9',
-    image: '/lovable-uploads/Fresh%20Miraa%20(Khat).jpg',
+    image: '/lovable-uploads/Fresh%20Miraa%20%28Khat%29.jpg',
     title: 'Fresh Miraa (Khat)',
     description: 'High-quality miraa leaves, carefully harvested and packaged for maximum freshness and potency.',
     basePrice: 8.00,
@@ -169,8 +169,8 @@ const categories = [
   { id: 'grains', name: 'Grains', count: 53 },
   { id: 'tubers', name: 'Tubers', count: 42 },
   { id: 'herbs', name: 'Herbs', count: 21 },
-  { id: 'nuts', name: 'Nuts', count: 18 }, 
-  { id: 'stimulants', name: 'Stimulants', count: 12 }, 
+  { id: 'nuts', name: 'Nuts', count: 18 },
+  { id: 'stimulants', name: 'Stimulants', count: 12 },
   { id: 'beverages', name: 'Beverages', count: 24 },
 ];
 
