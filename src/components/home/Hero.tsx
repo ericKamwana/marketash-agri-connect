@@ -56,7 +56,7 @@ const Hero = () => {
           </div>
           <div className="relative h-full flex justify-center">
             <img
-              src="/Images/young farmers using marketash.png"
+              src="/lovable-uploads/African%20Farmers%20with%20Mobile%20App.png"
               alt="African Farmers with Mobile App"
               className="rounded-lg shadow-xl max-h-[500px] object-cover animate-fade-in"
             />
