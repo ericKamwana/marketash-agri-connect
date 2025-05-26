@@ -67,8 +67,8 @@ const HowItWorks = () => {
               </div>
               <div className={`${index % 2 !== 0 ? 'md:order-1' : ''}`}>
                 <img
-                  src={step.imageSrc}
-                  alt={step.imageAlt}
+                  src="/lovable-uploads/new%20marketash%20logo.png"
+                  alt="Logo Image"
                   className="rounded-lg shadow-lg w-full object-cover h-[300px]"
                 />
               </div>
