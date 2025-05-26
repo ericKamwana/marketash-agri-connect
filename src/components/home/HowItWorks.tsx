@@ -8,34 +8,30 @@ const steps = [
     number: "01",
     title: "Register Your Farm",
     description: "Sign up as a farmer with basic information about your farm, crops, and location.",
-    imageSrc: "/lovable-uploads/marketash-user%20process.png",
-    imageAlt: "Farmer registration"
+    imageAlt: "Marketash logo"
   },
   {
     number: "02",
     title: "List Your Produce",
     description: "Add details about your harvests, including quantity, quality, and your desired base price.",
-    imageSrc: "/lovable-uploads/new%20marketash%20logo.png",
-    imageAlt: "Listing produce"
+    imageAlt: "Marketash logo"
   },
   {
     number: "03",
     title: "Receive & Accept Bids",
     description: "Get competitive bids from verified buyers and choose the best offer for your produce.",
-    imageSrc: "/lovable-uploads/marketash%20bid%20accepted.png",
-    imageAlt: "Accepting bids"
+    imageAlt: "Marketash logo"
   },
   {
     number: "04",
     title: "Delivery & Payment",
     description: "Arrange delivery through our logistics partners and receive secure payment upon confirmation.",
-    imageSrc: "/lovable-uploads/Marketash%20Logistics.png",
-    imageAlt: "Delivery and payment"
+    imageAlt: "Marketash logo"
   }
 ];
 
 const HowItWorks = () => {
-  const fixedImage = "/lovable-uploads/new%20marketash%20logo.png";
+  const logoImageSrc = "/lovable-uploads/new%20marketash%20logo.png";
 
   return (
     <section id="how-it-works" className="py-16 md:py-24 bg-marketash-gray">
@@ -67,12 +63,10 @@ const HowItWorks = () => {
                   <p className="text-gray-700 text-lg">{step.description}</p>
                 </div>
               </div>
-
-              {/* ✅ Updated: use same image for all steps */}
               <div className={`${index % 2 !== 0 ? 'md:order-1' : ''}`}>
                 <img
-                  src={fixedImage}
-                  alt="Marketash logo"
+                  src={logoImageSrc}
+                  alt={step.imageAlt}
                   className="rounded-lg shadow-lg w-full object-cover h-[300px]"
                 />
               </div>
@@ -98,3 +92,4 @@ const HowItWorks = () => {
 };
 
 export default HowItWorks;
+
