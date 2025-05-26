@@ -28,7 +28,7 @@ const ImageSections = () => {
           </div>
           <div className="order-1 md:order-2">
             <img 
-              src="Images/Logistics & Delivery Trust.png" 
+              src="public/lovable-uploads/Marketash Logistics.png" 
               alt="Marketash Logistics" 
               className="rounded-lg shadow-xl w-full"
             />
@@ -39,7 +39,7 @@ const ImageSections = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-20">
           <div>
             <img 
-              src="Images/Data Analytics for Agribusinesses.png" 
+              src="public/lovable-uploads/Market Analytics Dashboard.png" 
               alt="Market Analytics Dashboard" 
               className="rounded-lg shadow-xl w-full"
             />
@@ -79,7 +79,7 @@ const ImageSections = () => {
           </div>
           <div className="order-1 md:order-2">
             <img 
-              src="Images/BNPL (Buy Now, Pay Later) Scenario.png" 
+              src="public/lovable-uploads/Marketash Financing.png" 
               alt="Marketash Financing" 
               className="rounded-lg shadow-xl w-full"
             />
