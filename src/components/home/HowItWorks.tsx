@@ -8,28 +8,28 @@ const steps = [
     number: "01",
     title: "Register Your Farm",
     description: "Sign up as a farmer with basic information about your farm, crops, and location.",
-    imageSrc: "https://images.unsplash.com/photo-1466721591366-2d5fba72006d?q=80&w=800&auto=format&fit=crop",
+    imageSrc: "Images/marketash-user process.png",
     imageAlt: "Farmer registration"
   },
   {
     number: "02",
     title: "List Your Produce",
     description: "Add details about your harvests, including quantity, quality, and your desired base price.",
-    imageSrc: "https://images.unsplash.com/photo-1493962853295-0fd70327578a?q=80&w=800&auto=format&fit=crop",
+    imageSrc: "Images/new marketash logo.png",
     imageAlt: "Listing produce"
   },
   {
     number: "03",
     title: "Receive & Accept Bids",
     description: "Get competitive bids from verified buyers and choose the best offer for your produce.",
-    imageSrc: "https://images.unsplash.com/photo-1501286353178-1ec881214838?q=80&w=800&auto=format&fit=crop",
+    imageSrc: "Images/marketash bid accepted.png",
     imageAlt: "Accepting bids"
   },
   {
     number: "04",
     title: "Delivery & Payment",
     description: "Arrange delivery through our logistics partners and receive secure payment upon confirmation.",
-    imageSrc: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?q=80&w=800&auto=format&fit=crop",
+    imageSrc: "Images/Logistics & Delivery Trust.png",
     imageAlt: "Delivery and payment"
   }
 ];
