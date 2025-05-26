@@ -17,14 +17,15 @@ const MarketplaceHeader = ({ onSearch, searchQuery }: MarketplaceHeaderProps) =>
             Browse fresh produce directly from African farmers. 
             Place bids, negotiate prices, and build lasting relationships.
           </p>
-          
+
           {/* Search Bar */}
           <MarketplaceSearch onSearch={onSearch} initialQuery={searchQuery} />
         </div>
+
         <div className="hidden md:block">
           <img 
-            src="/lovable-uploads/41809536-e626-4f4b-9665-6898b6f4af3b.png" 
-            alt="Marketplace" 
+            src="/lovable-uploads/Microloan Process Visualization.png" 
+            alt="Microloan Process Visualization" 
             className="rounded-lg h-48 w-full object-cover"
             loading="eager"
           />
