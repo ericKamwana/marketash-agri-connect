@@ -24,7 +24,7 @@ const MarketplaceHeader = ({ onSearch, searchQuery }: MarketplaceHeaderProps) =>
 
         <div className="hidden md:block">
           <img 
-            src="/lovable-uploads/Microloan Process Visualization.png" 
+            src="/lovable-uploads/Microloan%20Process%20Visualization.png" 
             alt="Microloan Process Visualization" 
             className="rounded-lg h-48 w-full object-cover"
             loading="eager"
