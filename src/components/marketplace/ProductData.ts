@@ -2,166 +2,77 @@
 // Mock data for product listings
 const products = [
   {
-    id: '1',
-    image: '/lovable-uploads/organic tomatoes.jpg',
-    title: 'Organic Tomatoes',
-    description: 'Fresh, pesticide-free tomatoes grown using organic farming methods. Perfect for salads and cooking.',
-    basePrice: 2.50,
-    unit: 'kg',
-    quantity: 500,
-    location: 'Nairobi, Kenya',
-    harvestDate: '2 days ago',
-    farmer: {
-      name: 'Sarah Mwangi',
-      image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=150&auto=format&fit=crop',
-      rating: 4
-    }
+    number: "01",
+    title: "Organic Tomatoes",
+    description: "Fresh, pesticide-free tomatoes grown using organic farming methods. Perfect for salads and cooking.",
+    imageSrc: "/lovable-uploads/organic%20tomatoes.jpg",
+    imageAlt: "Organic tomatoes on display"
   },
   {
-    id: '2',
-    image: '/lovable-uploads/Premium Cassava.jpg',
-    title: 'Premium Cassava',
-    description: 'High-yield cassava variety with excellent starch content. Ideal for flour and industrial processing.',
-    basePrice: 1.20,
-    unit: 'kg',
-    quantity: 1200,
-    location: 'Accra, Ghana',
-    harvestDate: '1 week ago',
-    farmer: {
-      name: 'John Okafor',
-      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150&auto=format&fit=crop',
-      rating: 5
-    }
+    number: "02",
+    title: "Premium Cassava",
+    description: "High-yield cassava variety with excellent starch content. Ideal for flour and industrial processing.",
+    imageSrc: "/lovable-uploads/Premium%20Cassava.jpg",
+    imageAlt: "Fresh cassava roots"
   },
   {
-    id: '3',
-    image: '/lovable-uploads/Red Onions.jpg',
-    title: 'Red Onions',
-    description: 'Sweet red onions grown in volcanic soil. Perfect for salads and cooking with extended shelf life.',
-    basePrice: 1.80,
-    unit: 'kg',
-    quantity: 800,
-    location: 'Kigali, Rwanda',
-    harvestDate: '3 days ago',
-    farmer: {
-      name: 'Amina Diop',
-      image: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=150&auto=format&fit=crop',
-      rating: 4
-    }
+    number: "03",
+    title: "Red Onions",
+    description: "Sweet red onions grown in volcanic soil. Perfect for salads and cooking with extended shelf life.",
+    imageSrc: "/lovable-uploads/Red%20Onions.jpg",
+    imageAlt: "Red onions bunch"
   },
   {
-    id: '4',
-    image: '/lovable-uploads/Green Peppers.jpg',
-    title: 'Green Peppers',
-    description: 'Fresh, crispy green peppers with excellent flavor. Great for salads, stir-fries, and stuffed peppers.',
-    basePrice: 3.00,
-    unit: 'kg',
-    quantity: 300,
-    location: 'Lagos, Nigeria',
-    harvestDate: '1 day ago',
-    farmer: {
-      name: 'Kwame Adjei',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop',
-      rating: 3
-    }
+    number: "04",
+    title: "Green Peppers",
+    description: "Fresh, crispy green peppers with excellent flavor. Great for salads, stir-fries, and stuffed peppers.",
+    imageSrc: "/lovable-uploads/Green%20Peppers.jpg",
+    imageAlt: "Green peppers in a basket"
   },
   {
-    id: '5',
-    image: '/lovable-uploads/e3f2019c-e264-493f-88f2-6762a660e345.png',
-    title: 'Sweet Corn',
-    description: 'Non-GMO sweet corn with excellent sugar content. Perfect for grilling, boiling, or adding to salads.',
-    basePrice: 1.50,
-    unit: 'kg',
-    quantity: 750,
-    location: 'Kampala, Uganda',
-    harvestDate: '4 days ago',
-    farmer: {
-      name: 'Daniel Mensah',
-      image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=150&auto=format&fit=crop',
-      rating: 5
-    }
+    number: "05",
+    title: "Sweet Corn",
+    description: "Non-GMO sweet corn with excellent sugar content. Perfect for grilling, boiling, or adding to salads.",
+    imageSrc: "/lovable-uploads/e3f2019c-e264-493f-88f2-6762a660e345.png",
+    imageAlt: "Sweet corn cobs"
   },
   {
-    id: '6',
-    image: '/lovable-uploads/Green Bananas.jpg',
-    title: 'Green Bananas',
-    description: 'Organic green bananas, perfect for cooking traditional African dishes or for ripening at home.',
-    basePrice: 1.20,
-    unit: 'kg',
-    quantity: 1000,
-    location: 'Dar es Salaam, Tanzania',
-    harvestDate: '2 days ago',
-    farmer: {
-      name: 'Grace Okonkwo',
-      image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=150&auto=format&fit=crop',
-      rating: 4
-    }
+    number: "06",
+    title: "Green Bananas",
+    description: "Organic green bananas, perfect for cooking traditional African dishes or for ripening at home.",
+    imageSrc: "/lovable-uploads/Green%20Bananas.jpg",
+    imageAlt: "Unripe green bananas"
   },
   {
-    id: '7',
-    image: '/lovable-uploads/Organic Avocados.jpg',
-    title: 'Organic Avocados',
-    description: 'Creamy, nutrient-rich avocados grown in the highlands. Perfect for salads, smoothies, and spreads.',
-    basePrice: 3.80,
-    unit: 'kg',
-    quantity: 600,
-    location: 'Meru, Kenya',
-    harvestDate: '1 day ago',
-    farmer: {
-      name: 'Elizabeth Njeri',
-      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&auto=format&fit=crop',
-      rating: 5
-    }
+    number: "07",
+    title: "Organic Avocados",
+    description: "Creamy, nutrient-rich avocados grown in the highlands. Perfect for salads, smoothies, and spreads.",
+    imageSrc: "/lovable-uploads/Organic%20Avocados.jpg",
+    imageAlt: "Sliced organic avocados"
   },
   {
-    id: '8',
-    image: '/lovable-uploads/Macadamia Nuts.jpg',
-    title: 'Macadamia Nuts',
-    description: 'Premium grade macadamia nuts with high oil content. Perfect for snacking and gourmet food production.',
-    basePrice: 12.50,
-    unit: 'kg',
-    quantity: 300,
-    location: 'Embu, Kenya',
-    harvestDate: '1 week ago',
-    farmer: {
-      name: 'Thomas Mutua',
-      image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=150&auto=format&fit=crop',
-      rating: 4
-    }
+    number: "08",
+    title: "Macadamia Nuts",
+    description: "Premium grade macadamia nuts with high oil content. Perfect for snacking and gourmet food production.",
+    imageSrc: "/lovable-uploads/Macadamia%20Nuts.jpg",
+    imageAlt: "Macadamia nuts in shell and shelled"
   },
   {
-    id: '9',
-    image: '/lovable-uploads/Fresh Miraa (Khat).jpg',
-    title: 'Fresh Miraa (Khat)',
-    description: 'High-quality miraa leaves, carefully harvested and packaged for maximum freshness and potency.',
-    basePrice: 8.00,
-    unit: 'bundle',
-    quantity: 450,
-    location: 'Meru, Kenya',
-    harvestDate: 'Today',
-    farmer: {
-      name: 'Hassan Omar',
-      image: 'https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?q=80&w=150&auto=format&fit=crop',
-      rating: 5
-    }
+    number: "09",
+    title: "Fresh Miraa (Khat)",
+    description: "High-quality miraa leaves, carefully harvested and packaged for maximum freshness and potency.",
+    imageSrc: "/lovable-uploads/Fresh%20Miraa%20(Khat).jpg",
+    imageAlt: "Freshly packed miraa leaves"
   },
   {
-    id: '10',
-    image: '/lovable-uploads/Premium Coffee Beans.jpg',
-    title: 'Premium Coffee Beans',
-    description: 'Specialty grade Arabica coffee beans grown at high altitude. Rich flavor profile with notes of chocolate and citrus.',
-    basePrice: 15.20,
-    unit: 'kg',
-    quantity: 800,
-    location: 'Nyeri, Kenya',
-    harvestDate: '3 days ago',
-    farmer: {
-      name: 'James Maina',
-      image: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
-      rating: 5
-    }
+    number: "10",
+    title: "Premium Coffee Beans",
+    description: "Specialty grade Arabica coffee beans grown at high altitude. Rich flavor profile with notes of chocolate and citrus.",
+    imageSrc: "/lovable-uploads/Premium%20Coffee%20Beans.jpg",
+    imageAlt: "Roasted Arabica coffee beans"
   }
 ];
+
 
 const categories = [
   { id: 'vegetables', name: 'Vegetables', count: 124 },
