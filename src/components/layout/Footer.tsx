@@ -12,7 +12,7 @@ const Footer = () => {
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="inline-block mb-4">
               <img 
-                src="/lovable-uploads/8daf162f-f92f-4d6c-951c-64e1b6d816a0.png" 
+                src=""/lovable-uploads/new%20marketash%20logo.png"" 
                 alt="Marketash Logo" 
                 className="h-12 bg-white p-1 rounded-full"
               />
